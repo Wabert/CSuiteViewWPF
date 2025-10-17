@@ -12,4 +12,12 @@
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
   </ItemGroup>
 
+  <!-- Exclude archived/legacy files from the build to avoid duplicate generated types -->
+  <ItemGroup>
+    <!-- prevent .cs files in Archive from being compiled -->
+    <Compile Remove="Archive\**\*.cs" />
+    <!-- prevent any XAML pages under Archive from being processed into generated code -->
+    <Page Remove="Archive\**\*.xaml" />
+  </ItemGroup>
+
 </Project>

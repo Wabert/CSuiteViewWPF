@@ -6,9 +6,9 @@ using System.Windows.Media;
 
 namespace CSuiteViewWPF
 {
-    public partial class NavigationTreeControl : UserControl
+    public partial class TreeViewControl : UserControl
     {
-        public NavigationTreeControl()
+        public TreeViewControl()
         {
             InitializeComponent();
             // Prevent TreeView from auto-scrolling selected items into view
@@ -19,14 +19,14 @@ namespace CSuiteViewWPF
         private void LoadSampleData()
         {
             NavTree.Items.Clear();
-            var nodes = NavigationSampleData.GetNodes();
+            var nodes = TreeViewControlSampleData.GetNodes();
             foreach (var n in nodes)
             {
                 NavTree.Items.Add(BuildTreeItem(n));
             }
         }
 
-        private TreeViewItem BuildTreeItem(NavigationNode node)
+        private TreeViewItem BuildTreeItem(Models.TreeViewControlNode node)
         {
             var tvi = new TreeViewItem { Header = node.Name, IsExpanded = true };
             if (node.Children != null && node.Children.Any())

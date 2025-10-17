@@ -57,7 +57,7 @@
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Left" Margin="0,0,0,8">
-            <Button x:Name="CreateButton" Content="Create" Width="120" Click="CreateButton_Click" Style="{StaticResource GoldBubbledButton}" />
+            <Button x:Name="CreateButton" Content="Create" Width="120" Click="CreateButton_Click" Style="{StaticResource RoundedBrassButtonStyle}" />
             <Button Content="Sample" Width="120" Margin="8,0,0,0" Style="{StaticResource DarkBlueGoldButton}" />
         </StackPanel>
         

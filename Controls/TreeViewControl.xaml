@@ -1,4 +1,4 @@
-<UserControl x:Class="CSuiteViewWPF.NavigationTreeControl"
+<UserControl x:Class="CSuiteViewWPF.TreeViewControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:models="clr-namespace:CSuiteViewWPF.Models"
@@ -7,7 +7,7 @@
     <UserControl.Resources>
         <!-- Navigation tree item template (copied from MainWindow)
              Made implicit by DataType so it applies to all levels of the tree -->
-        <HierarchicalDataTemplate DataType="{x:Type models:NavigationNode}" ItemsSource="{Binding Children}">
+    <HierarchicalDataTemplate DataType="{x:Type models:TreeViewControlNode}" ItemsSource="{Binding Children}">
             <TextBlock Foreground="#2C5AA0">
                 <Run Text="{Binding Name}"/>
                 <Run Text="  "/>
@@ -139,7 +139,7 @@
     </UserControl.Resources>
 
     <Border Background="Transparent" Padding="4">
-        <!-- implicit HierarchicalDataTemplate via DataType will be applied to all NavigationNode instances -->
+        <!-- implicit HierarchicalDataTemplate via DataType will be applied to all TreeViewControlNode instances -->
         <TreeView x:Name="NavTree" AllowDrop="True" Drop="NavTree_Drop" PreviewDragOver="NavTree_PreviewDragOver"
                   Background="Transparent" BorderThickness="0" Padding="2" VerticalAlignment="Stretch"
                   Style="{StaticResource FlatTreeViewStyle}"/>

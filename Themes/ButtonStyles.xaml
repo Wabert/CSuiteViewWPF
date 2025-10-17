@@ -1,0 +1,121 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Consolidated button styles (Gold / Blue / Brass / Silver) -->
+
+    <!-- Shared bubbled button template - uses the Button's Background and BorderBrush setters -->
+    <ControlTemplate x:Key="BubbledButtonTemplate" TargetType="Button">
+        <Grid>
+            <Border x:Name="Outer" CornerRadius="6" BorderThickness="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                <Grid>
+                    <Border CornerRadius="6" Margin="2" IsHitTestVisible="False">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#80FFFFFF" Offset="0.0" />
+                                <GradientStop Color="#00FFFFFF" Offset="0.6" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <Border x:Name="PressedOverlay" CornerRadius="6" Background="#40000000" Opacity="0" />
+                </Grid>
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="PressedOverlay" Property="Opacity" Value="0.35" />
+                <Setter TargetName="Outer" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform Y="1" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+
+
+
+    <!-- Rounded Gold (now shares bubbled template) -->
+    <Style x:Key="RoundedBrassButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FFFEF5" Offset="0"/>
+                    <GradientStop Color="#FFF8C8" Offset="0.15"/>
+                    <GradientStop Color="#FFED6F" Offset="0.35"/>
+                    <GradientStop Color="#FFD700" Offset="0.5"/>
+                    <GradientStop Color="#E8C400" Offset="0.65"/>
+                    <GradientStop Color="#D4AF37" Offset="0.85"/>
+                    <GradientStop Color="#C09A20" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="#808080" />
+        <Setter Property="Template" Value="{StaticResource BubbledButtonTemplate}" />
+    </Style>
+
+
+    <!-- Rounded Silver (now shares bubbled template but with silver colors) -->
+    <Style x:Key="RoundedSilverButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="6,2"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FCFCFC" Offset="0"/>
+                    <GradientStop Color="#F0F0F0" Offset="0.15"/>
+                    <GradientStop Color="#DEDEDE" Offset="0.35"/>
+                    <GradientStop Color="#C0C0C0" Offset="0.5"/>
+                    <GradientStop Color="#ACACAC" Offset="0.65"/>
+                    <GradientStop Color="#959595" Offset="0.85"/>
+                    <GradientStop Color="#808080" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="#808080" />
+        <Setter Property="Template" Value="{StaticResource BubbledButtonTemplate}" />
+    </Style>
+
+    <!-- Gold bubbled button removed: use RoundedBrassButtonStyle instead -->
+
+    <!-- Dark blue background with gold text -->
+    <Style x:Key="DarkBlueGoldButton" TargetType="Button">
+        <Setter Property="Height" Value="16" />
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Padding" Value="6,2" />
+        <Setter Property="BorderBrush" Value="#18325F" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#27408B" Offset="0.0"/>
+                    <GradientStop Color="#1F3A78" Offset="0.5"/>
+                    <GradientStop Color="#18325F" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template" Value="{StaticResource BubbledButtonTemplate}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="#2C5AA0" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

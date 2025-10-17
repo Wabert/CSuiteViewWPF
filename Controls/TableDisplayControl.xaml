@@ -7,7 +7,7 @@
     <Border Padding="1" CornerRadius="6" BorderBrush="{StaticResource GoldBrush}" BorderThickness="2" Background="Transparent" MaxWidth="640">
         <Grid>
             <Grid.Resources>
-                <!-- Header style using gold gradient similar to GoldBubbledButton -->
+                <!-- Header style using gold gradient similar to RoundedBrassButtonStyle -->
                 <Style TargetType="DataGridColumnHeader">
                     <Setter Property="Foreground" Value="{StaticResource DarkBlue}" />
                     <Setter Property="FontWeight" Value="Bold" />
