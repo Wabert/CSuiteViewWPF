@@ -59,7 +59,7 @@
                 </ListView.ItemContainerStyle>
 
                 <ListView.ItemTemplate>
-                    <DataTemplate DataType="{x:Type models:KeyValueItem}">
+                    <DataTemplate DataType="{x:Type models:ListViewItem}">
                         <Grid ToolTipService.IsEnabled="True">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="120" />

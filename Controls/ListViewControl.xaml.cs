@@ -12,18 +12,18 @@ namespace CSuiteViewWPF
         {
             InitializeComponent();
             // populate with sample data for now
-            var sample = new List<KeyValueItem>
+            var sample = new List<Models.ListViewItem>
             {
-                new KeyValueItem("First Name","John"),
-                new KeyValueItem("Last Name","Doe"),
-                new KeyValueItem("Street","1234 Main St"),
-                new KeyValueItem("City","Springfield"),
-                new KeyValueItem("State","IL"),
-                new KeyValueItem("DOB","1985-03-12"),
-                new KeyValueItem("Issue Date","2020-01-01"),
-                new KeyValueItem("SSN","***-**-1234"),
-                new KeyValueItem("Email","john.doe@example.com"),
-                new KeyValueItem("Phone","(555) 123-4567"),
+                new Models.ListViewItem("First Name","John"),
+                new Models.ListViewItem("Last Name","Doe"),
+                new Models.ListViewItem("Street","1234 Main St"),
+                new Models.ListViewItem("City","Springfield"),
+                new Models.ListViewItem("State","IL"),
+                new Models.ListViewItem("DOB","1985-03-12"),
+                new Models.ListViewItem("Issue Date","2020-01-01"),
+                new Models.ListViewItem("SSN","***-**-1234"),
+                new Models.ListViewItem("Email","john.doe@example.com"),
+                new Models.ListViewItem("Phone","(555) 123-4567"),
             };
             ItemsHost.ItemsSource = sample;
 
@@ -39,7 +39,7 @@ namespace CSuiteViewWPF
         {
             // show copy context menu for the Value under mouse
             var el = e.OriginalSource as FrameworkElement;
-            var kv = el?.DataContext as KeyValueItem;
+            var kv = el?.DataContext as Models.ListViewItem;
             var menu = new ContextMenu();
 
             var copyValue = new MenuItem { Header = "Copy value" };
@@ -62,7 +62,7 @@ namespace CSuiteViewWPF
         {
             var el = e.OriginalSource as FrameworkElement;
             var kv = el?.DataContext as KeyValueItem;
-            if (kv != null)
+                if (kv != null)
             {
                 // copy the value to clipboard and provide visual feedback via flash
                 Clipboard.SetText(kv.Value ?? string.Empty);
@@ -80,7 +80,7 @@ namespace CSuiteViewWPF
                     var lines = new System.Text.StringBuilder();
                     foreach (var o in items)
                     {
-                        if (o is KeyValueItem kv)
+                        if (o is Models.ListViewItem kv)
                         {
                             // tab separated key and value, value will be empty string if null
                             lines.Append(kv.Key ?? string.Empty).Append('\t').Append(kv.Value ?? string.Empty).AppendLine();
