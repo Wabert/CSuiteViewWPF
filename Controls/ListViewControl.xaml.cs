@@ -61,7 +61,7 @@ namespace CSuiteViewWPF
         private void ItemsHost_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var el = e.OriginalSource as FrameworkElement;
-            var kv = el?.DataContext as KeyValueItem;
+            var kv = el?.DataContext as Models.ListViewItem;
                 if (kv != null)
             {
                 // copy the value to clipboard and provide visual feedback via flash
