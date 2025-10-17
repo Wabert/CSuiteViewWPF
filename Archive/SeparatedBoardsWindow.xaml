@@ -1,0 +1,11 @@
+<controls:MetroWindow x:Class="CSuiteViewWPF.SeparatedBoardsWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      Title="SeparatedBoardsWindow" Height="480" Width="800">
+
+    <Grid>
+        <TextBlock Text="Separated Boards (placeholder)" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
+    </Grid>
+
+</controls:MetroWindow>

@@ -17,7 +17,9 @@ namespace CSuiteViewWPF
             get => panelCount;
             set
             {
-                panelCount = Math.Max(1, Math.Min(6, value));
+                // allow 0 panels to completely hide the panel layer
+                panelCount = Math.Max(0, Math.Min(6, value));
+                if (treePanelIndex >= panelCount) treePanelIndex = -1;
                 BuildPanels();
             }
         }
@@ -27,7 +29,9 @@ namespace CSuiteViewWPF
             get => treePanelIndex;
             set
             {
-                treePanelIndex = value < 0 ? -1 : Math.Max(0, Math.Min(panelCount - 1, value));
+                if (value < 0) treePanelIndex = -1;
+                else if (panelCount == 0) treePanelIndex = -1;
+                else treePanelIndex = Math.Max(0, Math.Min(panelCount - 1, value));
                 BuildPanels();
             }
         }
@@ -83,6 +87,17 @@ namespace CSuiteViewWPF
         {
             PanelsGrid.Children.Clear();
             PanelsGrid.ColumnDefinitions.Clear();
+
+            // If no panels are requested, collapse the PanelsGrid area and return
+            if (panelCount == 0)
+            {
+                if (MiddleBorder != null) MiddleBorder.Visibility = Visibility.Collapsed;
+                return;
+            }
+            else
+            {
+                if (MiddleBorder != null) MiddleBorder.Visibility = Visibility.Visible;
+            }
 
             // Build columns with splitters between them
             for (int i = 0; i < panelCount; i++)
@@ -157,6 +172,7 @@ namespace CSuiteViewWPF
         private int footerHeight;
         private int spaceAbove;
         private int spaceBelow;
+    private bool footerVisible = true;
 
         public int HeaderHeight
         {
@@ -198,16 +214,42 @@ namespace CSuiteViewWPF
             }
         }
 
+        // If false, the footer and its thin gold separator line are removed from layout
+        public bool FooterVisible
+        {
+            get => footerVisible;
+            set
+            {
+                footerVisible = value;
+                ApplyLayoutSizes();
+            }
+        }
+
         private void ApplyLayoutSizes()
         {
             // Update grid row heights
             if (MainContentGrid != null && MainContentGrid.RowDefinitions.Count >= 5)
             {
                 MainContentGrid.RowDefinitions[0].Height = new GridLength(HeaderHeight, GridUnitType.Pixel);
-                MainContentGrid.RowDefinitions[1].Height = new GridLength(2, GridUnitType.Pixel); // fine gold line
+
+                // Always keep the thin gold line under the header (row 1). Only collapse the footer and
+                // the fine gold line above it (rows 3 and 4) when FooterVisible is false.
+                MainContentGrid.RowDefinitions[1].Height = new GridLength(2, GridUnitType.Pixel); // fine gold line under header
                 MainContentGrid.RowDefinitions[2].Height = new GridLength(1, GridUnitType.Star);
-                MainContentGrid.RowDefinitions[3].Height = new GridLength(2, GridUnitType.Pixel);
-                MainContentGrid.RowDefinitions[4].Height = new GridLength(FooterHeight, GridUnitType.Pixel);
+
+                if (FooterVisible)
+                {
+                    MainContentGrid.RowDefinitions[3].Height = new GridLength(2, GridUnitType.Pixel); // fine gold line above footer
+                    MainContentGrid.RowDefinitions[4].Height = new GridLength(FooterHeight, GridUnitType.Pixel);
+                    if (FooterBar != null) FooterBar.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    // collapse footer-related rows (preserve header's thin line)
+                    MainContentGrid.RowDefinitions[3].Height = new GridLength(0, GridUnitType.Pixel);
+                    MainContentGrid.RowDefinitions[4].Height = new GridLength(0, GridUnitType.Pixel);
+                    if (FooterBar != null) FooterBar.Visibility = Visibility.Collapsed;
+                }
 
                 // Apply space above/below to middle Border padding
                 var middleBorder = MainContentGrid.Children.OfType<Border>().FirstOrDefault(b => Grid.GetRow(b) == 2);

@@ -2,6 +2,7 @@ using CSuiteViewWPF.Models;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace CSuiteViewWPF
 {
@@ -10,6 +11,8 @@ namespace CSuiteViewWPF
         public NavigationTreeControl()
         {
             InitializeComponent();
+            // Prevent TreeView from auto-scrolling selected items into view
+            NavTree.AddHandler(RequestBringIntoViewEvent, new RequestBringIntoViewEventHandler(NavTree_RequestBringIntoView), true);
             LoadSampleData();
         }
 
@@ -54,6 +57,29 @@ namespace CSuiteViewWPF
                 var tvi = new TreeViewItem { Header = text };
                 NavTree.Items.Add(tvi);
             }
+        }
+
+        private void NavTree_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+        {
+            // If the request comes from a TreeViewItem (or its visual child), suppress it so clicking
+            // an item doesn't automatically scroll it to the top of the ScrollViewer.
+            DependencyObject source = e.OriginalSource as DependencyObject;
+            while (source != null && !(source is TreeViewItem))
+            {
+                source = VisualTreeHelper.GetParent(source);
+            }
+
+            if (source is TreeViewItem)
+            {
+                e.Handled = true;
+            }
+        }
+
+        // Handler wired via EventSetter in XAML for individual TreeViewItems
+        private void TreeViewItem_RequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+        {
+            // Prevent the built-in TreeViewItem behavior that scrolls the item into view
+            e.Handled = true;
         }
     }
 }

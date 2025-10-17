@@ -47,11 +47,12 @@
 
         <StackPanel Orientation="Horizontal" Grid.Row="6" Margin="0,0,0,8">
             <CheckBox x:Name="LeftTreeCheck" Content="Tree in left panel" VerticalAlignment="Center" />
-            <TextBox x:Name="DragTextBox" Width="180" Margin="12,0,0,0" Text="Drag me into the tree" PreviewMouseMove="DragTextBox_PreviewMouseMove" />
+            <CheckBox x:Name="FooterVisibleCheck" Content="Show footer" IsChecked="True" Margin="12,0,0,0" VerticalAlignment="Center" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Right">
             <Button Content="Create" Width="100" Click="CreateButton_Click" />
+            <Button Content="Create (no panels, no footer)" Width="200" Click="CreateNoPanelsNoFooter_Click" Margin="8,0,0,0" />
         </StackPanel>
     </Grid>
 

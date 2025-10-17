@@ -41,6 +41,8 @@
        <!-- Navigation TreeViewItem style (copied and adapted)
            Made implicit by removing x:Key so it applies to all TreeViewItem elements -->
        <Style TargetType="TreeViewItem">
+          <!-- Suppress automatic RequestBringIntoView raised by built-in selection logic -->
+          <EventSetter Event="RequestBringIntoView" Handler="TreeViewItem_RequestBringIntoView"/>
             <Setter Property="Foreground" Value="#2C5AA0"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="0,0,0,0"/>

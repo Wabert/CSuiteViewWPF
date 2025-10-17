@@ -1,0 +1,71 @@
+<UserControl x:Class="CSuiteViewWPF.TemplateCreatorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:CSuiteViewWPF"
+             Height="Auto" Width="Auto">
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <!-- inputs -->
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <!-- buttons -->
+            <RowDefinition Height="Auto" />
+            <!-- key/value list -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Title for the new template window -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock Text="Title:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
+            <TextBox x:Name="TitleBox" Width="240" Text="ANICO DATABASE MANAGER" Style="{StaticResource ThemedTextBox}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,8">
+            <TextBlock Text="HeaderHeight:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
+            <TextBox x:Name="HeaderHeightBox" Width="120" Text="48" Style="{StaticResource ThemedTextBox}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,8">
+            <TextBlock Text="FooterHeight:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
+            <TextBox x:Name="FooterHeightBox" Width="120" Text="36" Style="{StaticResource ThemedTextBox}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,0,0,8">
+            <TextBlock Text="PanelCount:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
+            <TextBox x:Name="PanelCountBox" Width="120" Text="3" Style="{StaticResource ThemedTextBox}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="4" Margin="0,0,0,8">
+            <TextBlock Text="SpaceAbove (px):" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
+            <TextBox x:Name="SpaceAboveBox" Width="120" Text="12" Style="{StaticResource ThemedTextBox}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="5" Margin="0,0,0,8">
+            <TextBlock Text="SpaceBelow (px):" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
+            <TextBox x:Name="SpaceBelowBox" Width="120" Text="18" Style="{StaticResource ThemedTextBox}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="6" Margin="0,0,0,8">
+            <CheckBox x:Name="LeftTreeCheck" Content="Tree in left panel" VerticalAlignment="Center" Foreground="{StaticResource GoldBrush}" />
+            <CheckBox x:Name="FooterVisibleCheck" Content="Show footer" IsChecked="True" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="{StaticResource GoldBrush}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="7" HorizontalAlignment="Left" Margin="0,0,0,8">
+            <Button x:Name="CreateButton" Content="Create" Width="120" Click="CreateButton_Click" Style="{StaticResource GoldBubbledButton}" />
+            <Button Content="Sample" Width="120" Margin="8,0,0,0" Style="{StaticResource DarkBlueGoldButton}" />
+        </StackPanel>
+        
+        <!-- Key/Value preview area -->
+        <StackPanel Grid.Row="8" Orientation="Horizontal" Margin="0,12,0,0">
+            <controls:KeyValueListControl x:Name="PreviewKeyValueList" />
+            <controls:TableDisplayControl x:Name="PreviewTable" Margin="12,0,0,0" />
+        </StackPanel>
+    </Grid>
+
+</UserControl>

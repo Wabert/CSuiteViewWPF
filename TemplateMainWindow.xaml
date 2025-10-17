@@ -84,7 +84,7 @@
                 <!-- thin gold line under header -->
                 <Border Grid.Row="1" Background="{StaticResource GoldBrush}" Height="2" HorizontalAlignment="Stretch" />
 
-                <Border Grid.Row="2" Background="{StaticResource MediumBlue}" CornerRadius="4" Padding="12,18">
+                <Border x:Name="MiddleBorder" Grid.Row="2" Background="{StaticResource MediumBlue}" CornerRadius="4" Padding="12,18">
                     <Grid>
                         <Grid x:Name="PanelsGrid" />
                     </Grid>
