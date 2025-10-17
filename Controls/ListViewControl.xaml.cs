@@ -6,9 +6,9 @@ using System.Windows.Input;
 
 namespace CSuiteViewWPF
 {
-    public partial class KeyValueListControl : UserControl
+    public partial class ListViewControl : UserControl
     {
-        public KeyValueListControl()
+        public ListViewControl()
         {
             InitializeComponent();
             // populate with sample data for now
@@ -30,7 +30,10 @@ namespace CSuiteViewWPF
             // attach event to allow copying text on click
             ItemsHost.MouseLeftButtonUp += ItemsHost_MouseLeftButtonUp;
             ItemsHost.PreviewMouseRightButtonUp += ItemsHost_PreviewMouseRightButtonUp;
-        }
+    }
+
+    // Keep an old-style constructor name compatibility method in case some code used the old name
+    // (this does not create a new type, it's purely a static convenience and not necessary)
 
         private void ItemsHost_PreviewMouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {

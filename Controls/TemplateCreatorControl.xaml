@@ -63,7 +63,7 @@
         
         <!-- Key/Value preview area -->
         <StackPanel Grid.Row="8" Orientation="Horizontal" Margin="0,12,0,0">
-            <controls:KeyValueListControl x:Name="PreviewKeyValueList" />
+            <controls:ListViewControl x:Name="PreviewKeyValueList" />
             <controls:TableDisplayControl x:Name="PreviewTable" Margin="12,0,0,0" />
         </StackPanel>
     </Grid>
