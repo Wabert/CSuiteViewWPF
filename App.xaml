@@ -2,7 +2,6 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:CSuiteViewWPF"
-             xmlns:converters="clr-namespace:CSuiteViewWPF.Converters"
              >
     <Application.Resources>
         <ResourceDictionary>
@@ -12,14 +11,12 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
                 
-                <!-- Our custom theme -->
-                <ResourceDictionary Source="Themes/RoyalClassicTheme.xaml"/>
-                <!-- Consolidated button styles -->
-                <ResourceDictionary Source="Themes/ButtonStyles.xaml"/>
+                <!-- Our custom resources -->
+                <ResourceDictionary Source="Resources/BrushResources.xaml"/>
+                <ResourceDictionary Source="Resources/DataGridStyles.xaml"/>
+                <ResourceDictionary Source="Resources/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="Resources/Converters.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-            <!-- Converters -->
-            <converters:BrushToSelectionBackgroundConverter x:Key="BrushToSelectionBackgroundConverter" />
 
             <!-- Default tokens are provided by Themes/RoyalClassicTheme.xaml -->
 

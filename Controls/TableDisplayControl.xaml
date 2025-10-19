@@ -53,6 +53,7 @@
                     </LinearGradientBrush>
                 </Border.Background>
 
+
                 <!-- make the DataGrid transparent so the inner PanelLight fills the rows uniformly -->
                 <DataGrid x:Name="DataGridHost" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" Background="Transparent" RowBackground="Transparent" AlternatingRowBackground="Transparent" GridLinesVisibility="None"
                           SelectionUnit="FullRow" SelectionMode="Single">
@@ -148,7 +149,7 @@
                     </DataGridTextColumn>
                 </DataGrid.Columns>
                 </DataGrid>
-                    </Border>
+            </Border>
         </Grid>
     </Border>
 </UserControl>

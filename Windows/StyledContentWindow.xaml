@@ -1,8 +1,9 @@
-<Window x:Class="CSuiteViewWPF.Windows.TemplateMainWindow"
+<Window x:Class="CSuiteViewWPF.Windows.StyledContentWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-    Title="Template Main Window" Height="600" Width="900"
+    xmlns:local="clr-namespace:CSuiteViewWPF.Controls"
+    Title="Styled Content Window" Height="600" Width="900"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="False" Background="{DynamicResource GoldBrush}">
 
@@ -85,9 +86,7 @@
                 <Border Grid.Row="1" Background="{StaticResource GoldBrush}" Height="2" HorizontalAlignment="Stretch" />
 
                 <Border x:Name="MiddleBorder" Grid.Row="2" Background="{StaticResource MediumBlue}" CornerRadius="4" Padding="12,18">
-                    <Grid>
-                        <Grid x:Name="PanelsGrid" />
-                    </Grid>
+                    <local:FilteredDataGridControl x:Name="FilteredDataGrid" />
                 </Border>
 
                 <!-- thin gold line above footer -->

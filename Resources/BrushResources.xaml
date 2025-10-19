@@ -1,0 +1,63 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Royal Classic Theme Colors -->
+    <Color x:Key="PrimaryColor">#2C5AA0</Color>
+    <Color x:Key="SecondaryColor">#4169E1</Color>
+    <Color x:Key="AccentColor">#FFD700</Color>
+    <Color x:Key="LightBlueColor">#60a0ff</Color>
+    <Color x:Key="PanelLightColor">#A7C9FF</Color>
+    <Color x:Key="LightBlueFilterColor">#E6F2FF</Color>
+    <Color x:Key="TextOnPrimaryColor">#FFFFFF</Color>
+    <Color x:Key="TextOnSecondaryColor">#D4AF37</Color>
+    
+    <!-- Brushes from Theme -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="LightBlueBrush" Color="{StaticResource LightBlueColor}"/>
+    <SolidColorBrush x:Key="TextOnPrimaryBrush" Color="{StaticResource TextOnPrimaryColor}"/>
+    <SolidColorBrush x:Key="TextOnSecondaryBrush" Color="{StaticResource TextOnSecondaryColor}"/>
+    
+    <!-- Convenience brushes (aliases) -->
+    <SolidColorBrush x:Key="GoldBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="DarkBlue" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="MiddleBlue" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="PanelLight" Color="{StaticResource PanelLightColor}"/>
+    <SolidColorBrush x:Key="LightBlue" Color="{StaticResource LightBlueFilterColor}"/>
+    <SolidColorBrush x:Key="SilverBrush" Color="#C0C0C0"/>
+    
+    <!-- Gradients -->
+    <LinearGradientBrush x:Key="GoldGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FFF6E0" Offset="0.0" />
+        <GradientStop Color="#FFD24D" Offset="0.5" />
+        <GradientStop Color="#FFB800" Offset="1.0" />
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="BlueGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#4169E1" Offset="0.0" />
+        <GradientStop Color="#4169E1" Offset="0.6" />
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="BrassGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#FFE4A1" Offset="0.0" />
+        <GradientStop Color="#F5CF76" Offset="0.15" />
+        <GradientStop Color="#D6A94D" Offset="0.5" />
+        <GradientStop Color="#C79A3A" Offset="0.85" />
+        <GradientStop Color="#B8872B" Offset="1.0" />
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="SilverGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F0F0F0" Offset="0.0" />
+        <GradientStop Color="#D8D8D8" Offset="0.15" />
+        <GradientStop Color="#C0C0C0" Offset="0.5" />
+        <GradientStop Color="#A8A8A8" Offset="0.85" />
+        <GradientStop Color="#909090" Offset="1.0" />
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="DarkBlueGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#27408B" Offset="0.0" />
+        <GradientStop Color="#1C2F6A" Offset="1.0" />
+    </LinearGradientBrush>
+    
+</ResourceDictionary>

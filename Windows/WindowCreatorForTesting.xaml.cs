@@ -1,11 +1,14 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace CSuiteViewWPF
+namespace CSuiteViewWPF.Windows
 {
-    public partial class TemplateCreatorControl : UserControl
+    /// <summary>
+    /// Window creator for testing different window configurations
+    /// </summary>
+    public partial class WindowCreatorForTesting : UserControl
     {
-        public TemplateCreatorControl()
+        public WindowCreatorForTesting()
         {
             InitializeComponent();
             // populate preview table with sample data so the creator shows a live example
@@ -28,7 +31,7 @@ namespace CSuiteViewWPF
             if (!int.TryParse(SpaceAboveBox.Text, out var above)) above = 12;
             if (!int.TryParse(SpaceBelowBox.Text, out var below)) below = 18;
 
-            var w = new TemplateMainWindow();
+            var w = new StyledContentWindow();
             w.HeaderTitle = TitleBox.Text ?? string.Empty;
             w.PanelCount = count;
             w.HeaderHeight = headerH;

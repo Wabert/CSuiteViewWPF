@@ -1,6 +1,10 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="BrushResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- Consolidated button styles (Gold / Blue / Brass / Silver) -->
 
     <!-- Shared bubbled button template - uses the Button's Background and BorderBrush setters -->
@@ -116,6 +120,32 @@
                 <Setter Property="BorderBrush" Value="#2C5AA0" />
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <!-- Light Blue bubbled button for filters -->
+    <Style x:Key="LightBlueButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="28" />
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#E8F4FF" Offset="0"/>
+                    <GradientStop Color="#D0E8FF" Offset="0.15"/>
+                    <GradientStop Color="#B8DCFF" Offset="0.35"/>
+                    <GradientStop Color="#A0D0FF" Offset="0.5"/>
+                    <GradientStop Color="#88C4FF" Offset="0.65"/>
+                    <GradientStop Color="#70B8FF" Offset="0.85"/>
+                    <GradientStop Color="#60A0FF" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="#4080C0" />
+        <Setter Property="Template" Value="{StaticResource BubbledButtonTemplate}" />
     </Style>
 
 </ResourceDictionary>
