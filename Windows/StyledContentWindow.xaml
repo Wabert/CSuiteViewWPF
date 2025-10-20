@@ -13,10 +13,14 @@
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <SolidColorBrush x:Key="DarkBlue" Color="#27408B" />
-        <SolidColorBrush x:Key="MediumBlue" Color="#4169E1" />
-        <SolidColorBrush x:Key="PanelLight" Color="#A7C9FF" />
-        <SolidColorBrush x:Key="GoldBrush" Color="#FFD700" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
+                <ResourceDictionary Source="/Resources/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- These are kept for backward compatibility but should use the merged resources -->
+            <SolidColorBrush x:Key="MediumBlue" Color="#4169E1" />
 
         <!-- Header/footer gradients (3-stop) -->
         <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="0,1">
@@ -44,6 +48,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
     <DockPanel LastChildFill="True">

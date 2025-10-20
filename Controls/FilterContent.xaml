@@ -75,18 +75,28 @@
                     Padding="8,4"/>
         </StackPanel>
         
-        <!-- ListBox with * height to fill available space -->
-        <ListBox Grid.Row="3"
-                 ItemsSource="{Binding FilterItemsView}" 
+        <!-- Virtualized multi-select ListBox - no checkboxes, just select items directly -->
+        <ListBox x:Name="FilterListBox"
+                 Grid.Row="3"
+                 ItemsSource="{Binding FilterItemsView}"
                  BorderBrush="{StaticResource DarkBlue}"
-                 BorderThickness="1">
+                 BorderThickness="1"
+                 SelectionMode="Extended"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="20,20"
+                 VirtualizingPanel.CacheLengthUnit="Item"
+                 ScrollViewer.CanContentScroll="True">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <CheckBox IsChecked="{Binding IsSelected}" 
-                              Content="{Binding DisplayValue}" 
-                              Margin="4,2"/>
+                    <TextBlock Text="{Binding DisplayValue}" Margin="4,2"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
         </ListBox>
         
         <!-- OK and Cancel buttons (same size) -->

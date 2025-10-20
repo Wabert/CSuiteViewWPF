@@ -526,21 +526,15 @@ namespace CSuiteViewWPF.Controls
         }
 
         /// <summary>
-        /// Sort the DataGrid by a specific column
+        /// Sort the DataGrid by a specific column using the high-performance sorting engine
         /// </summary>
         private void SortColumn(string columnKey, System.ComponentModel.ListSortDirection direction)
         {
             if (DataContext is not FilteredDataGridViewModel viewModel) return;
 
-            // Clear existing sort descriptions
-            viewModel.ViewSource.View.SortDescriptions.Clear();
-
-            // Add new sort description for this column
-            viewModel.ViewSource.View.SortDescriptions.Add(
-                new System.ComponentModel.SortDescription(columnKey, direction));
-
-            // Refresh the view to apply sorting
-            viewModel.ViewSource.View.Refresh();
+            // Use the high-performance sorting method from the ViewModel
+            bool ascending = direction == System.ComponentModel.ListSortDirection.Ascending;
+            viewModel.SortByColumn(columnKey, ascending);
         }
 
         /// <summary>

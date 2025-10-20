@@ -6,10 +6,9 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
                 <ResourceDictionary Source="/Resources/ButtonStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <SolidColorBrush x:Key="DarkBlue" Color="#27408B"/>
-            <SolidColorBrush x:Key="GoldBrush" Color="#FFD700"/>
         </ResourceDictionary>
     </UserControl.Resources>
     

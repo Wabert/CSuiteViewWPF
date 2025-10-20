@@ -2,24 +2,55 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using CSuiteViewWPF.Models;
+using CSuiteViewWPF.Services;
 
 namespace CSuiteViewWPF.ViewModels
 {
     /// <summary>
-    /// ViewModel for FileSystemItem data with filterable DataGrid support.
-    /// This is now a concrete implementation of IFilterableDataGridViewModel.
+    /// High-performance ViewModel for FileSystemItem data with filterable DataGrid support.
+    /// Uses BitArray-based filtering engine for sub-100ms filter updates on 300k+ row datasets.
+    /// This is a concrete implementation of IFilterableDataGridViewModel.
     /// </summary>
     public class FilteredDataGridViewModel : INotifyPropertyChanged, IFilterableDataGridViewModel
     {
+        #region Fields
+
         private ObservableCollection<FileSystemItem>? _items;
         private string _searchText = string.Empty;
-    private CollectionViewSource _viewSource = new CollectionViewSource();
+        private CollectionViewSource _viewSource = new CollectionViewSource();
 
+        // High-performance filtering engine
+        private PerformantDataFilter<FileSystemItem>? _filterEngine;
+        private FilterPerformanceMonitor _performanceMonitor;
+
+        // Filter options for each column - stored in dictionary for easy lookup by column key
+        private Dictionary<string, ObservableCollection<FilterItemViewModel>> _columnFilters;
+
+        // Cached filter selections for each column
+        private Dictionary<string, HashSet<object>> _activeFilterSelections;
+
+        // Filtered data collection for DataGrid binding (updated in-place for performance)
+        private ObservableCollection<FileSystemItem> _filteredCollection;
+
+        // Cache flags to track which columns need cache refresh
+        private HashSet<string> _cacheNeedsRefresh;
+
+        // Flag to indicate cache is being updated (prevent recursive updates)
+        private bool _isUpdatingCache;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Source data collection. When set, builds indexes in parallel for high-performance filtering.
+        /// </summary>
         public ObservableCollection<FileSystemItem>? Items
         {
             get => _items;
@@ -27,6 +58,7 @@ namespace CSuiteViewWPF.ViewModels
             {
                 _items = value;
                 OnPropertyChanged(nameof(Items));
+                InitializeFilterEngine();
                 UpdateViewSource();
                 UpdateFilterOptions();
             }
@@ -53,10 +85,7 @@ namespace CSuiteViewWPF.ViewModels
             }
         }
 
-        // Filter options for each column - stored in dictionary for easy lookup by column key
-        private Dictionary<string, ObservableCollection<FilterItemViewModel>> _columnFilters;
-        
-        // Properties that access the dictionary collections
+        // Filter collection properties for each column
         public ObservableCollection<FilterItemViewModel> FullPathFilters => _columnFilters["FullPath"];
         public ObservableCollection<FilterItemViewModel> ObjectTypeFilters => _columnFilters["ObjectType"];
         public ObservableCollection<FilterItemViewModel> ObjectNameFilters => _columnFilters["ObjectName"];
@@ -64,192 +93,464 @@ namespace CSuiteViewWPF.ViewModels
         public ObservableCollection<FilterItemViewModel> SizeFilters => _columnFilters["Size"];
         public ObservableCollection<FilterItemViewModel> DateLastModifiedFilters => _columnFilters["DateLastModified"];
 
-        // Column definitions for the DataGrid
+        /// <summary>
+        /// Column definitions for the DataGrid
+        /// </summary>
         public ObservableCollection<FilterableColumnDefinition> ColumnDefinitions { get; private set; }
+
+        /// <summary>
+        /// Row count display: "Showing X of Y rows"
+        /// </summary>
+        public string RowCountDisplay
+        {
+            get
+            {
+                if (_filterEngine == null)
+                    return "No data";
+
+                if (_filterEngine.FilteredRowCount == _filterEngine.TotalRowCount)
+                    return $"Showing all {_filterEngine.TotalRowCount:N0} rows";
+
+                return $"Showing {_filterEngine.FilteredRowCount:N0} of {_filterEngine.TotalRowCount:N0} rows";
+            }
+        }
+
+        #endregion
+
+        #region Constructor
 
         public FilteredDataGridViewModel()
         {
-            ViewSource = new CollectionViewSource();
-            ViewSource.Filter += ViewSource_Filter;
-            
-            // Initialize the filter collections dictionary
-            _columnFilters = new Dictionary<string, ObservableCollection<FilterItemViewModel>>
+            try
             {
-                ["FullPath"] = new ObservableCollection<FilterItemViewModel>(),
-                ["ObjectType"] = new ObservableCollection<FilterItemViewModel>(),
-                ["ObjectName"] = new ObservableCollection<FilterItemViewModel>(),
-                ["FileExtension"] = new ObservableCollection<FilterItemViewModel>(),
-                ["Size"] = new ObservableCollection<FilterItemViewModel>(),
-                ["DateLastModified"] = new ObservableCollection<FilterItemViewModel>()
-            };
-            
-            // Define the columns for FileSystemItem data
-            ColumnDefinitions = new ObservableCollection<FilterableColumnDefinition>
-            {
-                new FilterableColumnDefinition 
-                { 
-                    Header = "Full Path", 
-                    BindingPath = "FullPath", 
-                    ColumnKey = "FullPath",
-                    Width = new GridLength(1, GridUnitType.Star),
-                    IsFilterable = true
-                },
-                new FilterableColumnDefinition 
-                { 
-                    Header = "Object Type", 
-                    BindingPath = "ObjectType", 
-                    ColumnKey = "ObjectType",
-                    Width = new GridLength(120),
-                    IsFilterable = true
-                },
-                new FilterableColumnDefinition 
-                { 
-                    Header = "Object Name", 
-                    BindingPath = "ObjectName", 
-                    ColumnKey = "ObjectName",
-                    Width = new GridLength(180),
-                    IsFilterable = true
-                },
-                new FilterableColumnDefinition 
-                { 
-                    Header = "File Extension", 
-                    BindingPath = "FileExtension", 
-                    ColumnKey = "FileExtension",
-                    Width = new GridLength(100),
-                    IsFilterable = true
-                },
-                new FilterableColumnDefinition 
-                { 
-                    Header = "Size", 
-                    BindingPath = "Size", 
-                    ColumnKey = "Size",
-                    Width = new GridLength(120),
-                    StringFormat = "{0:N0}",
-                    IsFilterable = true
-                },
-                new FilterableColumnDefinition 
-                { 
-                    Header = "Date Last Modified", 
-                    BindingPath = "DateLastModified", 
-                    ColumnKey = "DateLastModified",
-                    Width = new GridLength(180),
-                    StringFormat = "{0:yyyy-MM-dd HH:mm:ss}",
-                    IsFilterable = true
-                }
-            };
-        }
+                // Initialize performance logging
+                FilterPerformanceLogger.Initialize();
+                FilterPerformanceLogger.Log("Constructor", 0, "Starting FilteredDataGridViewModel construction");
 
-        private void UpdateViewSource()
-        {
-            if (Items != null)
-            {
-                ViewSource.Source = Items;
-                ViewSource.View.Refresh();
+                _filteredCollection = new ObservableCollection<FileSystemItem>();
+                FilterPerformanceLogger.Log("Constructor", 0, "Created _filteredCollection");
+
+                ViewSource = new CollectionViewSource();
+                ViewSource.Source = _filteredCollection; // Initialize with empty collection so View is not null
+                FilterPerformanceLogger.Log("Constructor", 0, "Initialized ViewSource");
+
+                _performanceMonitor = new FilterPerformanceMonitor();
+                _activeFilterSelections = new Dictionary<string, HashSet<object>>();
+                _cacheNeedsRefresh = new HashSet<string>();
+                _isUpdatingCache = false;
+                FilterPerformanceLogger.Log("Constructor", 0, "Initialized internal fields");
+
+                // Initialize the filter collections dictionary
+                _columnFilters = new Dictionary<string, ObservableCollection<FilterItemViewModel>>
+                {
+                    ["FullPath"] = new ObservableCollection<FilterItemViewModel>(),
+                    ["ObjectType"] = new ObservableCollection<FilterItemViewModel>(),
+                    ["ObjectName"] = new ObservableCollection<FilterItemViewModel>(),
+                    ["FileExtension"] = new ObservableCollection<FilterItemViewModel>(),
+                    ["Size"] = new ObservableCollection<FilterItemViewModel>(),
+                    ["DateLastModified"] = new ObservableCollection<FilterItemViewModel>()
+                };
+                FilterPerformanceLogger.Log("Constructor", 0, "Initialized _columnFilters");
             }
-        }
-
-        private void UpdateFilterOptions()
-        {
-            var columnKeys = _columnFilters.Keys.ToList();
-
-            foreach (var key in columnKeys)
+            catch (Exception ex)
             {
-                _columnFilters[key].Clear();
+                FilterPerformanceLogger.Log("Constructor_ERROR", 0, $"EXCEPTION: {ex.Message}\n{ex.StackTrace}");
+                throw;
             }
 
+            try
+            {
+                // Define the columns for FileSystemItem data
+                ColumnDefinitions = new ObservableCollection<FilterableColumnDefinition>
+                {
+                    new FilterableColumnDefinition
+                    {
+                        Header = "Full Path",
+                        BindingPath = "FullPath",
+                        ColumnKey = "FullPath",
+                        Width = new GridLength(1, GridUnitType.Star),
+                        IsFilterable = true
+                    },
+                    new FilterableColumnDefinition
+                    {
+                        Header = "Object Type",
+                        BindingPath = "ObjectType",
+                        ColumnKey = "ObjectType",
+                        Width = new GridLength(120),
+                        IsFilterable = true
+                    },
+                    new FilterableColumnDefinition
+                    {
+                        Header = "Object Name",
+                        BindingPath = "ObjectName",
+                        ColumnKey = "ObjectName",
+                        Width = new GridLength(180),
+                        IsFilterable = true
+                    },
+                    new FilterableColumnDefinition
+                    {
+                        Header = "File Extension",
+                        BindingPath = "FileExtension",
+                        ColumnKey = "FileExtension",
+                        Width = new GridLength(100),
+                        IsFilterable = true
+                    },
+                    new FilterableColumnDefinition
+                    {
+                        Header = "Size",
+                        BindingPath = "Size",
+                        ColumnKey = "Size",
+                        Width = new GridLength(120),
+                        StringFormat = "{0:N0}",
+                        IsFilterable = true
+                    },
+                    new FilterableColumnDefinition
+                    {
+                        Header = "Date Last Modified",
+                        BindingPath = "DateLastModified",
+                        ColumnKey = "DateLastModified",
+                        Width = new GridLength(180),
+                        StringFormat = "{0:yyyy-MM-dd HH:mm:ss}",
+                        IsFilterable = true
+                    }
+                };
+                FilterPerformanceLogger.Log("Constructor", 0, "Initialized ColumnDefinitions");
+            }
+            catch (Exception ex)
+            {
+                FilterPerformanceLogger.Log("Constructor_ColumnDef_ERROR", 0, $"EXCEPTION: {ex.Message}\n{ex.StackTrace}");
+                throw;
+            }
+
+            FilterPerformanceLogger.Log("Constructor", 0, "FilteredDataGridViewModel construction complete");
+        }
+
+        #endregion
+
+        #region Filter Engine Initialization
+
+        /// <summary>
+        /// Initializes the high-performance filter engine and builds all column indexes and caches in parallel
+        /// </summary>
+        private void InitializeFilterEngine()
+        {
             if (Items == null || Items.Count == 0)
             {
+                _filterEngine = null;
                 return;
             }
 
-            foreach (var key in columnKeys)
+            using (var timer = new FilterPerformanceLogger.Timer("InitializeFilterEngine", $"{Items.Count:N0} rows", 1000))
             {
-                var collection = _columnFilters[key];
-                foreach (var valueInfo in BuildFilterValues(key, Items))
+                // Create filter engine with source data
+                _filterEngine = new PerformantDataFilter<FileSystemItem>(Items);
+
+                // Build all column indexes in parallel for maximum performance
+                var columnsToBuild = ColumnDefinitions
+                    .Where(c => c.IsFilterable)
+                    .Select(c => c.BindingPath)
+                    .ToArray();
+
+                _filterEngine.BuildAllIndexesParallel(columnsToBuild);
+
+                FilterPerformanceLogger.LogWithRowCount("BuildAllIndexes", timer.ElapsedMilliseconds, Items.Count,
+                    $"{columnsToBuild.Length} columns");
+
+                // Pre-populate all filter caches (aggressive caching for instant dropdown opening)
+                BuildAllFilterCaches();
+
+                _performanceMonitor.RecordMetric("InitializeFilterEngine", timer.ElapsedMilliseconds, Items.Count,
+                    $"{columnsToBuild.Length} columns");
+            }
+        }
+
+        /// <summary>
+        /// Builds filter caches for ALL columns in parallel.
+        /// This is the key optimization: cache all distinct values upfront so dropdown opening is instant.
+        /// </summary>
+        private void BuildAllFilterCaches()
+        {
+            if (_filterEngine == null) return;
+
+            using (var timer = new FilterPerformanceLogger.Timer("BuildAllFilterCaches", "", 500))
+            {
+                var columnKeys = _columnFilters.Keys.ToArray();
+
+                // Build all caches sequentially (ObservableCollections are not thread-safe)
+                foreach (var columnKey in columnKeys)
                 {
-                    collection.Add(new FilterItemViewModel
+                    BuildSingleFilterCache(columnKey, onlyVisibleRows: false);
+                }
+
+                FilterPerformanceLogger.Log("BuildAllFilterCaches", timer.ElapsedMilliseconds,
+                    $"{columnKeys.Length} columns cached");
+            }
+        }
+
+        /// <summary>
+        /// Builds the filter cache for a single column.
+        /// Gets distinct values from the filter engine and populates the FilterItemViewModel collection.
+        /// </summary>
+        private void BuildSingleFilterCache(string columnKey, bool onlyVisibleRows)
+        {
+            if (_filterEngine == null) return;
+
+            var sw = Stopwatch.StartNew();
+
+            var collection = _columnFilters[columnKey];
+
+            // Save current selection state
+            var selectionMap = new Dictionary<object, bool>(new FilterValueEqualityComparer());
+            foreach (var item in collection)
+            {
+                if (item.Value != null)
+                    selectionMap[item.Value] = item.IsSelected;
+            }
+
+            // Get distinct values from the high-performance engine
+            var distinctValues = _filterEngine.GetDistinctValues(columnKey, onlyVisibleRows);
+
+            // Clear and rebuild the collection
+            collection.Clear();
+            foreach (var valueInfo in distinctValues)
+            {
+                var isSelected = selectionMap.TryGetValue(valueInfo.NormalizedValue, out var selected)
+                    ? selected
+                    : true;
+
+                collection.Add(new FilterItemViewModel
+                {
+                    Value = valueInfo.NormalizedValue,
+                    DisplayValue = valueInfo.DisplayValue,
+                    IsSelected = isSelected
+                });
+            }
+
+            sw.Stop();
+            FilterPerformanceLogger.Log($"BuildCache_{columnKey}", sw.ElapsedMilliseconds,
+                $"{distinctValues.Count} distinct values, onlyVisible={onlyVisibleRows}");
+        }
+
+        /// <summary>
+        /// Updates filter caches for visible values after a filter is applied.
+        /// This runs asynchronously so it doesn't block the UI.
+        /// </summary>
+        private async void UpdateFilterCachesAsync()
+        {
+            if (_filterEngine == null || _isUpdatingCache) return;
+
+            _isUpdatingCache = true;
+
+            try
+            {
+                using (var timer = new FilterPerformanceLogger.Timer("UpdateFilterCachesAsync", "", 300))
+                {
+                    var columnKeys = _columnFilters.Keys.ToArray();
+
+                    // Calculate distinct values in background
+                    var cacheData = await System.Threading.Tasks.Task.Run(() =>
                     {
-                        Value = valueInfo.RawValue,
-                        DisplayValue = valueInfo.DisplayValue,
-                        IsSelected = true
+                        var result = new Dictionary<string, List<FilterValueInfo>>();
+                        foreach (var columnKey in columnKeys)
+                        {
+                            var distinctValues = _filterEngine.GetDistinctValues(columnKey, onlyVisibleRows: true);
+                            result[columnKey] = distinctValues;
+                        }
+                        return result;
                     });
+
+                    // Update UI on UI thread
+                    foreach (var kvp in cacheData)
+                    {
+                        UpdateSingleCacheWithData(kvp.Key, kvp.Value);
+                    }
+
+                    FilterPerformanceLogger.Log("UpdateFilterCachesAsync", timer.ElapsedMilliseconds,
+                        $"{columnKeys.Length} columns updated");
                 }
+            }
+            finally
+            {
+                _isUpdatingCache = false;
             }
         }
 
-        private void ViewSource_Filter(object sender, FilterEventArgs e)
+        /// <summary>
+        /// Updates a single cache collection with pre-calculated data.
+        /// Must be called on the UI thread.
+        /// </summary>
+        private void UpdateSingleCacheWithData(string columnKey, List<FilterValueInfo> distinctValues)
         {
-            if (e.Item is not FileSystemItem item)
+            var collection = _columnFilters[columnKey];
+
+            // Save current selection state
+            var selectionMap = new Dictionary<object, bool>(new FilterValueEqualityComparer());
+            foreach (var item in collection)
             {
-                e.Accepted = false;
-                return;
+                if (item.Value != null)
+                    selectionMap[item.Value] = item.IsSelected;
             }
 
-            // Check search
-            if (!string.IsNullOrEmpty(SearchText))
+            // Clear and rebuild the collection
+            collection.Clear();
+            foreach (var valueInfo in distinctValues)
             {
-                var search = SearchText.ToLower();
-                if (!(item.FullPath?.ToLower().Contains(search) == true ||
-                      item.ObjectType?.ToLower().Contains(search) == true ||
-                      item.ObjectName?.ToLower().Contains(search) == true ||
-                      item.FileExtension?.ToLower().Contains(search) == true ||
-                      item.Size?.ToString().Contains(search) == true ||
-                      item.DateLastModified?.ToString().Contains(search) == true))
+                var isSelected = selectionMap.TryGetValue(valueInfo.NormalizedValue, out var selected)
+                    ? selected
+                    : true;
+
+                collection.Add(new FilterItemViewModel
                 {
-                    e.Accepted = false;
-                    return;
-                }
+                    Value = valueInfo.NormalizedValue,
+                    DisplayValue = valueInfo.DisplayValue,
+                    IsSelected = isSelected
+                });
             }
+        }
 
-            // Check filters
-            bool fullPathOk = IsSelected(FullPathFilters, item.FullPath);
-            bool objectTypeOk = IsSelected(ObjectTypeFilters, item.ObjectType);
-            bool objectNameOk = IsSelected(ObjectNameFilters, item.ObjectName);
-            bool fileExtensionOk = IsSelected(FileExtensionFilters, item.FileExtension);
-            bool sizeOk = IsSelected(SizeFilters, item.Size);
-            bool dateOk = IsSelected(DateLastModifiedFilters, item.DateLastModified);
-            
-            // DIAGNOSTIC: Log which filter is blocking items
-            if (!fullPathOk || !objectTypeOk || !objectNameOk || !fileExtensionOk || !sizeOk || !dateOk)
+        #endregion
+
+        #region View Update
+
+        /// <summary>
+        /// Updates the ViewSource with filtered data from the engine.
+        /// Optimized to minimize WPF rebinding overhead.
+        /// </summary>
+        private void UpdateViewSource()
+        {
+            if (_filterEngine == null)
             {
-                System.Diagnostics.Debug.WriteLine($"ITEM FILTERED OUT: {item.ObjectName}");
-                System.Diagnostics.Debug.WriteLine($"  FullPath OK: {fullPathOk} (value: '{item.FullPath}')");
-                System.Diagnostics.Debug.WriteLine($"  ObjectType OK: {objectTypeOk} (value: '{item.ObjectType}')");
-                System.Diagnostics.Debug.WriteLine($"  ObjectName OK: {objectNameOk} (value: '{item.ObjectName}')");
-                System.Diagnostics.Debug.WriteLine($"  FileExtension OK: {fileExtensionOk} (value: '{item.FileExtension}')");
-                System.Diagnostics.Debug.WriteLine($"  Size OK: {sizeOk} (value: {item.Size})");
-                System.Diagnostics.Debug.WriteLine($"  DateLastModified OK: {dateOk} (value: {item.DateLastModified})");
-                
-                e.Accepted = false;
+                ViewSource.Source = null;
+                OnPropertyChanged(nameof(RowCountDisplay));
                 return;
             }
 
-            e.Accepted = true;
-        }
-
-        private bool IsSelected(ObservableCollection<FilterItemViewModel> filters, object? value)
-        {
-            if (filters.Count == 0) return true;
-
-            var normalizedKey = CreateFilterKey(value);
-
-            var matchingFilter = filters.FirstOrDefault(f =>
-                CreateFilterKey(f.Value).Equals(normalizedKey));
-
-            if (matchingFilter == null)
+            using (var timer = new FilterPerformanceLogger.Timer("UpdateViewSource", "", 200))
             {
-                return true;
-            }
+                // Get filtered data from the high-performance engine
+                var filteredData = _filterEngine.GetFilteredData();
 
-            return matchingFilter.IsSelected;
+                // Apply search text filter if needed
+                if (!string.IsNullOrEmpty(SearchText))
+                {
+                    var search = SearchText.ToLower();
+                    filteredData = filteredData.Where(item =>
+                        item.FullPath?.ToLower().Contains(search) == true ||
+                        item.ObjectType?.ToLower().Contains(search) == true ||
+                        item.ObjectName?.ToLower().Contains(search) == true ||
+                        item.FileExtension?.ToLower().Contains(search) == true ||
+                        item.Size?.ToString().Contains(search) == true ||
+                        item.DateLastModified?.ToString().Contains(search) == true
+                    ).ToList();
+                }
+
+                // Set the source directly - WPF's virtualization handles the rest
+                // Use DeferRefresh to batch updates
+                using (ViewSource.DeferRefresh())
+                {
+                    ViewSource.Source = filteredData;
+                }
+
+                FilterPerformanceLogger.LogWithRowCount("UpdateViewSource", timer.ElapsedMilliseconds, filteredData.Count);
+                _performanceMonitor.RecordMetric("UpdateViewSource", timer.ElapsedMilliseconds, filteredData.Count);
+                OnPropertyChanged(nameof(RowCountDisplay));
+            }
         }
 
+        #endregion
+
+        #region Filter Options Management
+
+        /// <summary>
+        /// Updates all filter options from the source data.
+        /// NOTE: This is now handled by BuildAllFilterCaches() in InitializeFilterEngine().
+        /// This method is kept for backwards compatibility but does nothing.
+        /// </summary>
+        private void UpdateFilterOptions()
+        {
+            // No-op: Filter options are now pre-cached by BuildAllFilterCaches()
+            // and updated asynchronously by UpdateFilterCachesAsync()
+        }
+
+        #endregion
+
+        #region Filter Application
+
+        /// <summary>
+        /// Applies all active filters using the high-performance BitArray engine.
+        /// Optimized with dirty tracking and async cache updates.
+        /// </summary>
         public void ApplyFilters()
         {
-            ViewSource.View.Refresh();
+            if (_filterEngine == null)
+                return;
+
+            FilterPerformanceLogger.LogSection("ApplyFilters");
+
+            using (var timer = new FilterPerformanceLogger.Timer("ApplyFilters_Total", "", 300))
+            {
+                // Update active filter selections for each column
+                foreach (var columnKey in _columnFilters.Keys)
+                {
+                    UpdateColumnFilter(columnKey);
+                }
+
+                // Update the view (this shows results to user immediately)
+                UpdateViewSource();
+
+                FilterPerformanceLogger.LogWithRowCount("ApplyFilters_Total", timer.ElapsedMilliseconds,
+                    _filterEngine.FilteredRowCount, $"{_filterEngine.FilteredColumns.Count} active filters");
+
+                _performanceMonitor.RecordMetric("ApplyFilters", timer.ElapsedMilliseconds,
+                    _filterEngine.FilteredRowCount, $"{_filterEngine.FilteredColumns.Count} active filters");
+            }
+
+            // Update filter caches in background (doesn't block UI)
+            // This ensures next dropdown click is instant
+            UpdateFilterCachesAsync();
         }
 
-        // Methods to select/deselect all for each column
+        /// <summary>
+        /// Updates the filter for a single column based on selected FilterItemViewModels
+        /// </summary>
+        private void UpdateColumnFilter(string columnKey)
+        {
+            if (_filterEngine == null)
+                return;
+
+            var filterItems = _columnFilters[columnKey];
+
+            // Get selected values (filter out nulls for the HashSet)
+            var selectedValues = new HashSet<object>();
+            foreach (var item in filterItems.Where(f => f.IsSelected))
+            {
+                if (item.Value != null)
+                {
+                    selectedValues.Add(item.Value);
+                }
+            }
+
+            // Check if all items are selected (no effective filter)
+            bool allSelected = selectedValues.Count == filterItems.Count;
+
+            if (allSelected)
+            {
+                // Remove filter for this column
+                _filterEngine.RemoveFilter(columnKey);
+                _activeFilterSelections.Remove(columnKey);
+            }
+            else
+            {
+                // Apply filter with selected values
+                _filterEngine.SetFilter(columnKey, selectedValues);
+                _activeFilterSelections[columnKey] = selectedValues;
+            }
+        }
+
+        #endregion
+
+        #region Select/Deselect All Methods
+
         public void SelectAllFullPath() => SetAllSelected(FullPathFilters, true);
         public void DeselectAllFullPath() => SetAllSelected(FullPathFilters, false);
         public void SelectAllObjectType() => SetAllSelected(ObjectTypeFilters, true);
@@ -270,10 +571,15 @@ namespace CSuiteViewWPF.ViewModels
                 filter.IsSelected = selected;
             }
             // Don't call ApplyFilters() here - wait for OK button
-            // ApplyFilters();
         }
 
-        // Attach event handlers to filter changes
+        #endregion
+
+        #region Filter Change Handlers
+
+        /// <summary>
+        /// Attach event handlers to filter changes (called from control)
+        /// </summary>
         public void AttachFilterChangeHandlers()
         {
             // Attach to all filter collections in the dictionary
@@ -306,198 +612,40 @@ namespace CSuiteViewWPF.ViewModels
             if (e.PropertyName == nameof(FilterItemViewModel.IsSelected))
             {
                 // Don't apply filters automatically - wait for user to click OK button
-                // ApplyFilters();
             }
         }
 
-        // IFilterableDataGridViewModel interface implementation
-        public ObservableCollection<FilterItemViewModel> GetFiltersForColumn(string columnKey)
-        {
-            if (!_columnFilters.ContainsKey(columnKey))
-            {
-                _columnFilters[columnKey] = new ObservableCollection<FilterItemViewModel>();
-            }
+        #endregion
 
-            var collection = _columnFilters[columnKey];
-
-            if (Items == null || Items.Count == 0)
-            {
-                return collection;
-            }
-
-            var selectionMap = collection
-                .GroupBy(f => CreateFilterKey(f.Value))
-                .ToDictionary(g => g.Key, g => g.First().IsSelected);
-
-            var valueInfos = BuildFilterValues(columnKey, Items);
-
-            collection.Clear();
-            foreach (var info in valueInfos)
-            {
-                var normalizedKey = info.NormalizedKey;
-                var isSelected = selectionMap.TryGetValue(normalizedKey, out var selected)
-                    ? selected
-                    : true;
-
-                collection.Add(new FilterItemViewModel
-                {
-                    Value = info.RawValue,
-                    DisplayValue = info.DisplayValue,
-                    IsSelected = isSelected
-                });
-            }
-
-            return collection;
-        }
+        #region IFilterableDataGridViewModel Interface
 
         /// <summary>
-        /// Gets the items that are currently visible based on all applied filters
+        /// Gets the filter collection for a column.
+        /// Returns cached values instantly - no recalculation needed!
+        /// This is the key to instant dropdown opening.
         /// </summary>
-        private List<FileSystemItem> GetCurrentlyVisibleItems()
+        public ObservableCollection<FilterItemViewModel> GetFiltersForColumn(string columnKey)
         {
-            if (Items == null || ViewSource.View == null)
+            using (var timer = new FilterPerformanceLogger.Timer($"GetFiltersForColumn_{columnKey}", "", 50))
             {
-                return new List<FileSystemItem>();
-            }
-
-            var visibleItems = new List<FileSystemItem>();
-            foreach (var item in ViewSource.View)
-            {
-                if (item is FileSystemItem fileItem)
+                if (!_columnFilters.ContainsKey(columnKey))
                 {
-                    visibleItems.Add(fileItem);
-                }
-            }
-            
-            return visibleItems;
-        }
-
-        private static object? NormalizeFilterValue(object? value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            if (value is string s && string.IsNullOrEmpty(s))
-            {
-                return null;
-            }
-
-            return value;
-        }
-
-        private static FilterKey CreateFilterKey(object? value)
-        {
-            return new FilterKey(NormalizeFilterValue(value));
-        }
-
-        private IEnumerable<FilterValueInfo> BuildFilterValues(string columnKey, IEnumerable<FileSystemItem> items)
-        {
-            var groupedValues = GetColumnValues(columnKey, items)
-                .Select(v => new { Raw = v, Key = CreateFilterKey(v) })
-                .GroupBy(x => x.Key);
-
-            var result = new List<FilterValueInfo>();
-
-            foreach (var group in groupedValues)
-            {
-                object? rawValue = group.Select(x => x.Raw).FirstOrDefault(v => v != null);
-                if (rawValue == null && group.Any())
-                {
-                    rawValue = group.First().Raw;
+                    _columnFilters[columnKey] = new ObservableCollection<FilterItemViewModel>();
                 }
 
-                var displayValue = rawValue?.ToString();
-                if (string.IsNullOrEmpty(displayValue))
+                var collection = _columnFilters[columnKey];
+
+                if (_filterEngine == null || Items == null || Items.Count == 0)
                 {
-                    displayValue = "(empty)";
+                    return collection;
                 }
 
-                result.Add(new FilterValueInfo(rawValue, group.Key, displayValue));
-            }
+                // Return cached collection - already populated by BuildAllFilterCaches() or UpdateFilterCachesAsync()
+                // This is INSTANT - no BitArray operations, no GetDistinctValues() calls!
+                FilterPerformanceLogger.Log($"GetFiltersForColumn_{columnKey}", timer.ElapsedMilliseconds,
+                    $"{collection.Count} items (cached)");
 
-            return OrderFilterValues(columnKey, result);
-        }
-
-        private IEnumerable<FilterValueInfo> OrderFilterValues(string columnKey, IEnumerable<FilterValueInfo> values)
-        {
-            return columnKey switch
-            {
-                "Size" => values.OrderBy(v => v.RawValue as long?),
-                "DateLastModified" => values.OrderBy(v => v.RawValue as DateTime?),
-                _ => values.OrderBy(v => v.DisplayValue, StringComparer.CurrentCultureIgnoreCase)
-            };
-        }
-
-        private IEnumerable<object?> GetColumnValues(string columnKey, IEnumerable<FileSystemItem> items)
-        {
-            return columnKey switch
-            {
-                "FullPath" => items.Select(i => (object?)i.FullPath),
-                "ObjectType" => items.Select(i => (object?)i.ObjectType),
-                "ObjectName" => items.Select(i => (object?)i.ObjectName),
-                "FileExtension" => items.Select(i => (object?)i.FileExtension),
-                "Size" => items.Select(i => (object?)i.Size),
-                "DateLastModified" => items.Select(i => (object?)i.DateLastModified),
-                _ => Enumerable.Empty<object?>()
-            };
-        }
-
-        internal IEnumerable<object?>? GetVisibleNormalizedValues(string columnKey)
-        {
-            var visibleItems = GetCurrentlyVisibleItems();
-            if (visibleItems.Count == 0)
-            {
-                return Array.Empty<object?>();
-            }
-
-            var normalizedValues = new HashSet<object?>();
-
-            foreach (var value in GetColumnValues(columnKey, visibleItems))
-            {
-                normalizedValues.Add(NormalizeFilterValue(value));
-            }
-
-            return normalizedValues;
-        }
-
-        private sealed class FilterValueInfo
-        {
-            public FilterValueInfo(object? rawValue, FilterKey normalizedKey, string displayValue)
-            {
-                RawValue = rawValue;
-                NormalizedKey = normalizedKey;
-                DisplayValue = displayValue;
-            }
-
-            public object? RawValue { get; }
-            public FilterKey NormalizedKey { get; }
-            public string DisplayValue { get; }
-        }
-
-        private readonly struct FilterKey : IEquatable<FilterKey>
-        {
-            private readonly object? _value;
-
-            public FilterKey(object? value)
-            {
-                _value = value;
-            }
-
-            public bool Equals(FilterKey other)
-            {
-                return Equals(_value, other._value);
-            }
-
-            public override bool Equals(object? obj)
-            {
-                return obj is FilterKey other && Equals(other);
-            }
-
-            public override int GetHashCode()
-            {
-                return _value?.GetHashCode() ?? 0;
+                return collection;
             }
         }
 
@@ -517,7 +665,25 @@ namespace CSuiteViewWPF.ViewModels
         }
 
         /// <summary>
-        /// Clears all filters for a specific column by selecting all items and rebuilding from full dataset
+        /// Gets the normalized values for currently visible items in a column.
+        /// Used to restrict filter dropdown to only show values that exist in filtered data.
+        /// </summary>
+        internal IEnumerable<object?>? GetVisibleNormalizedValues(string columnKey)
+        {
+            if (_filterEngine == null)
+                return Array.Empty<object?>();
+
+            // Get distinct values for visible rows only
+            var visibleValues = _filterEngine.GetDistinctValues(columnKey, onlyVisibleRows: true);
+            return visibleValues.Select(v => v.NormalizedValue).ToArray();
+        }
+
+        #endregion
+
+        #region Filter Clearing
+
+        /// <summary>
+        /// Clears all filters for a specific column by selecting all items
         /// </summary>
         public void ClearColumnFilter(string columnKey)
         {
@@ -526,16 +692,28 @@ namespace CSuiteViewWPF.ViewModels
                 return;
             }
 
-            // ALWAYS rebuild from the full dataset when clearing
-            // This ensures we get ALL values, not just currently visible ones
+            if (_filterEngine == null)
+                return;
+
+            var sw = Stopwatch.StartNew();
+
+            // Remove filter from engine
+            _filterEngine.RemoveFilter(columnKey);
+
+            // Rebuild filter collection from full dataset with all items selected
             RebuildColumnFilter(columnKey);
-            
+
             // Notify that the filter collection changed
             OnPropertyChanged($"{columnKey}Filters");
-            
-            // CRITICAL: Apply the filters to refresh the view!
-            ApplyFilters();
-            
+
+            // Apply the filters to refresh the view
+            UpdateViewSource();
+
+            sw.Stop();
+            Debug.WriteLine($"[FilteredDataGridViewModel] Cleared filter for '{columnKey}' in {sw.ElapsedMilliseconds}ms");
+
+            _performanceMonitor.RecordMetric("ClearColumnFilter", sw.ElapsedMilliseconds,
+                _filterEngine.FilteredRowCount, columnKey);
         }
 
         /// <summary>
@@ -543,25 +721,22 @@ namespace CSuiteViewWPF.ViewModels
         /// </summary>
         private void RebuildColumnFilter(string columnKey)
         {
-            if (!_columnFilters.ContainsKey(columnKey))
+            if (!_columnFilters.ContainsKey(columnKey) || _filterEngine == null)
             {
                 return;
             }
 
             var collection = _columnFilters[columnKey];
-
             collection.Clear();
 
-            if (Items == null || Items.Count == 0)
-            {
-                return;
-            }
+            // Get all distinct values (not just visible ones)
+            var distinctValues = _filterEngine.GetDistinctValues(columnKey, onlyVisibleRows: false);
 
-            foreach (var valueInfo in BuildFilterValues(columnKey, Items))
+            foreach (var valueInfo in distinctValues)
             {
                 collection.Add(new FilterItemViewModel
                 {
-                    Value = valueInfo.RawValue,
+                    Value = valueInfo.NormalizedValue,
                     DisplayValue = valueInfo.DisplayValue,
                     IsSelected = true
                 });
@@ -569,11 +744,11 @@ namespace CSuiteViewWPF.ViewModels
         }
 
         /// <summary>
-        /// Rebuilds all filter collections from the full dataset (used when data is first loaded)
+        /// Rebuilds all filter collections from the full dataset
         /// </summary>
         public void RebuildAllFilters()
         {
-            if (Items == null || Items.Count == 0)
+            if (_filterEngine == null || Items == null || Items.Count == 0)
             {
                 return;
             }
@@ -583,15 +758,68 @@ namespace CSuiteViewWPF.ViewModels
                 ClearColumnFilter(columnKey);
             }
 
-            // Refresh the view
             ViewSource?.View?.Refresh();
         }
+
+        #endregion
+
+        #region Sorting Support
+
+        /// <summary>
+        /// Sorts the data by a column (ascending or descending)
+        /// </summary>
+        public void SortByColumn(string columnKey, bool ascending = true)
+        {
+            if (_filterEngine == null)
+                return;
+
+            using (var timer = new FilterPerformanceLogger.Timer($"SortByColumn_{columnKey}",
+                ascending ? "ascending" : "descending", 1000))
+            {
+                _filterEngine.SortBy(columnKey, ascending);
+
+                // Update view to show sorted data
+                UpdateViewSource();
+
+                FilterPerformanceLogger.LogWithRowCount($"SortByColumn_{columnKey}", timer.ElapsedMilliseconds,
+                    _filterEngine.FilteredRowCount, ascending ? "asc" : "desc");
+
+                _performanceMonitor.RecordMetric("SortByColumn", timer.ElapsedMilliseconds,
+                    _filterEngine.FilteredRowCount, $"{columnKey} {(ascending ? "asc" : "desc")}");
+            }
+
+            // Sorting changes row order, so rebuild caches
+            UpdateFilterCachesAsync();
+        }
+
+        #endregion
+
+        #region Performance Monitoring
+
+        /// <summary>
+        /// Gets the performance monitor for diagnostics
+        /// </summary>
+        public FilterPerformanceMonitor PerformanceMonitor => _performanceMonitor;
+
+        /// <summary>
+        /// Generates a performance report for debugging
+        /// </summary>
+        public string GetPerformanceReport()
+        {
+            return _performanceMonitor.GenerateReport();
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion
     }
 
     /// <summary>

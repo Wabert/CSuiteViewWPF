@@ -7,12 +7,13 @@
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="Root">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="GoldBrush" Color="#FFD700"/>
-        <SolidColorBrush x:Key="DarkBlue" Color="#27408B"/>
-        <SolidColorBrush x:Key="MiddleBlue" Color="#4169E1"/>
-        <SolidColorBrush x:Key="PanelLight" Color="#A7C9FF"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
+                <ResourceDictionary Source="/Resources/ButtonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
-        <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="Foreground" Value="{StaticResource DarkBlue}" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Padding" Value="6,3" />
@@ -48,19 +49,29 @@
             <Setter Property="Padding" Value="8,8,8,8"/>
             <Setter Property="CornerRadius" Value="6"/>
         </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
         <Border Background="{StaticResource MiddleBlue}" BorderBrush="{StaticResource GoldBrush}" BorderThickness="3" CornerRadius="6" Padding="1" >
             <DockPanel>
-                <Border Margin="2" CornerRadius="4" Padding="0">
+                <!-- Row count display at the bottom -->
+                <Border DockPanel.Dock="Bottom" Background="{StaticResource DarkBlue}" Padding="8,4" Margin="2,0,2,2" CornerRadius="4">
+                    <TextBlock Text="{Binding RowCountDisplay}"
+                               Foreground="{StaticResource GoldBrush}"
+                               FontWeight="Bold"
+                               FontSize="12"
+                               HorizontalAlignment="Right"/>
+                </Border>
+
+                <Border Margin="2,2,2,0" CornerRadius="4" Padding="0">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                             <GradientStop Color="#4169E1" Offset="0.0" />
                             <GradientStop Color="#4169E1" Offset="0.6" />
                         </LinearGradientBrush>
                     </Border.Background>
-                    
+
                     <DataGrid x:Name="MainDataGrid"
                               ItemsSource="{Binding ViewSource.View}" 
                               AutoGenerateColumns="False"
