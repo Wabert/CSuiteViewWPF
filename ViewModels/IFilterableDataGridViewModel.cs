@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.Windows.Input;
+using CSuiteViewWPF.Controls;
 using CSuiteViewWPF.Models;
 
 namespace CSuiteViewWPF.ViewModels
@@ -15,6 +17,11 @@ namespace CSuiteViewWPF.ViewModels
         /// The CollectionViewSource that provides filtering and sorting for the data
         /// </summary>
         CollectionViewSource ViewSource { get; }
+
+        /// <summary>
+        /// The source data items collection (for loading data into the grid)
+        /// </summary>
+        ObservableCollection<FileSystemItem> Items { get; set; }
 
         /// <summary>
         /// Text search string that applies across all columns
@@ -51,5 +58,29 @@ namespace CSuiteViewWPF.ViewModels
         /// Refresh the view to apply current filters
         /// </summary>
         void RefreshView();
+
+        // ===== New Simplified Filtering Methods =====
+
+        /// <summary>
+        /// Applies a column filter instantly based on selected values (new instant filtering).
+        /// Empty set means show all rows (no filter active).
+        /// </summary>
+        /// <param name="columnKey">The column to filter</param>
+        /// <param name="selectedValues">Selected values (whitelist), or empty to clear filter</param>
+        void ApplyColumnFilter(string columnKey, HashSet<object> selectedValues);
+        
+        /// <summary>
+        /// Gets distinct values for a column to populate filter UI
+        /// </summary>
+        /// <param name="columnKey">The column key</param>
+        /// <returns>List of distinct values with display strings</returns>
+        List<SimpleFilterValue> GetDistinctValuesForColumn(string columnKey);
+        
+        /// <summary>
+        /// Gets currently active filter values for a column
+        /// </summary>
+        /// <param name="columnKey">The column key</param>
+        /// <returns>Set of currently filtered values, or empty if no filter active</returns>
+        HashSet<object> GetActiveFilterValues(string columnKey);
     }
 }

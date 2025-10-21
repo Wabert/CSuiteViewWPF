@@ -33,76 +33,54 @@
             <GradientStop Color="#2C5AA0" Offset="0.5" />
             <GradientStop Color="#18325F" Offset="1.0" />
         </LinearGradientBrush>
-
-        <!-- Minimal button style with no hover/focus visual -->
-        <Style x:Key="NoHoverButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <DockPanel LastChildFill="True">
-        <!-- Outer gold frame -->
-        <Border BorderBrush="{StaticResource GoldBrush}" BorderThickness="4" CornerRadius="8" Background="{StaticResource MediumBlue}" Padding="0">
+    <!-- Outer gold frame with 5-row grid inside -->
+    <Border BorderBrush="{StaticResource GoldBrush}" 
+            BorderThickness="4" 
+            CornerRadius="8" 
+            Background="{StaticResource MediumBlue}" 
+            Padding="0">
+        
+        <Grid x:Name="MainContentGrid" Margin="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48" /> <!-- header -->
+                <RowDefinition Height=".5" />  <!-- header fine gold line -->
+                <RowDefinition Height="*" />  <!-- middle -->
+                <RowDefinition Height=".5" />  <!-- footer fine gold line -->
+                <RowDefinition Height="36" /> <!-- footer -->
+            </Grid.RowDefinitions>
+            
+            <Border x:Name="HeaderBorder" Grid.Row="0" Background="{StaticResource HeaderGradient}" CornerRadius="4" Margin="0" Padding="1">
+                <Grid x:Name="HeaderBar">
+                    <TextBlock x:Name="HeaderTitleTextBlock" Text="Header Title" Foreground="{StaticResource GoldBrush}" VerticalAlignment="Center" Margin="12,0" FontWeight="Bold" FontSize="20" />
 
-            <!-- toolbar removed: panel count will be set in code -->
-            <DockPanel LastChildFill="True">
-
-        <!-- Header, middle and footer bands -->
-            <Grid x:Name="MainContentGrid" Margin="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="48" /> <!-- header -->
-                    <RowDefinition Height=".5" />  <!-- header fine gold line -->
-                    <RowDefinition Height="*" />  <!-- middle -->
-                    <RowDefinition Height=".5" />  <!-- footer fine gold line -->
-                    <RowDefinition Height="36" /> <!-- footer -->
-                </Grid.RowDefinitions>
-                
-                <Border Grid.Row="0" Background="{StaticResource HeaderGradient}" CornerRadius="4" Margin="0" Padding="1">
-                    <Grid x:Name="HeaderBar">
-                        <TextBlock x:Name="HeaderTitleTextBlock" Text="ANICO DATABASE MANAGER" Foreground="{StaticResource GoldBrush}" VerticalAlignment="Center" Margin="12,0" FontWeight="Bold" FontSize="20" />
-
-                        <!-- Custom close button in top-right (yellow circle with dark-blue X) -->
-                        <Button x:Name="CloseButton" Width="25" Height="25" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,8,0" Click="CloseButton_Click"
-                                Style="{StaticResource NoHoverButton}" IsTabStop="False">
-                            <Grid Width="25" Height="25">
-                                <Ellipse Fill="#FFFFD44D" Stroke="{StaticResource GoldBrush}" StrokeThickness="2" />
-                                <!-- thicker X using two lines -->
-                                <Canvas Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Line X1="0" Y1="0" X2="12" Y2="12" Stroke="{StaticResource DarkBlue}" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                    <Line X1="12" Y1="0" X2="0" Y2="12" Stroke="{StaticResource DarkBlue}" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                </Canvas>
-                            </Grid>
-                        </Button>
-                    </Grid>
-                </Border>
-
-                <!-- thin gold line under header -->
-                <Border Grid.Row="1" Background="{StaticResource GoldBrush}" Height="2" HorizontalAlignment="Stretch" />
-
-                <Border x:Name="MiddleBorder" Grid.Row="2" Background="{StaticResource MediumBlue}" CornerRadius="4" Padding="12,18">
-                    <local:FilteredDataGridControl x:Name="FilteredDataGrid" />
-                </Border>
-
-                <!-- thin gold line above footer -->
-                <Border Grid.Row="3" Background="{StaticResource GoldBrush}" Height="2" HorizontalAlignment="Stretch" />
-
-                <Border x:Name="FooterBar" Grid.Row="4" Background="{StaticResource FooterGradient}" CornerRadius="4">
-                    <TextBlock Text="Footer" Foreground="{StaticResource GoldBrush}" VerticalAlignment="Center" Margin="12,0" />
-                </Border>
-        </Grid>
-                </DockPanel>
+                    <!-- Custom close button in top-right -->
+                    <Button x:Name="CloseButton" 
+                            HorizontalAlignment="Right" 
+                            VerticalAlignment="Center" 
+                            Margin="0,0,8,0" 
+                            Click="CloseButton_Click"
+                            Style="{StaticResource GoldCircleCloseButton}" />
+                </Grid>
             </Border>
-        </DockPanel>
+
+            <!-- thin gold line under header -->
+            <Border Grid.Row="1" Background="{StaticResource GoldBrush}" Height="2" HorizontalAlignment="Stretch" />
+
+            <!-- Middle content area - empty by default, can be populated in code -->
+            <Border x:Name="MiddleBorder" Grid.Row="2" Background="{StaticResource MediumBlue}" CornerRadius="4" Padding="12,18">
+                <!-- Content will be added dynamically -->
+            </Border>
+
+            <!-- thin gold line above footer -->
+            <Border Grid.Row="3" Background="{StaticResource GoldBrush}" Height="2" HorizontalAlignment="Stretch" />
+
+            <Border x:Name="FooterBar" Grid.Row="4" Background="{StaticResource FooterGradient}" CornerRadius="4">
+                <TextBlock Text="Footer" Foreground="{StaticResource GoldBrush}" VerticalAlignment="Center" Margin="12,0" />
+            </Border>
+        </Grid>
+    </Border>
 
 </Window>

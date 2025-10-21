@@ -19,31 +19,22 @@
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <SolidColorBrush x:Key="GoldBrush" Color="#FFD700" />
-        <SolidColorBrush x:Key="MediumBlue" Color="#4169E1" />
-        <SolidColorBrush x:Key="DarkBlue" Color="#27408B" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/ControlTemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <SolidColorBrush x:Key="GoldBrush" Color="#FFD700" />
+            <SolidColorBrush x:Key="MediumBlue" Color="#4169E1" />
+            <SolidColorBrush x:Key="DarkBlue" Color="#27408B" />
 
-        <!-- Header gradient -->
-        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#18325F" Offset="0.0" />
-            <GradientStop Color="#2C5AA0" Offset="0.5" />
-            <GradientStop Color="#18325F" Offset="1.0" />
-        </LinearGradientBrush>
-
-        <!-- Minimal button style with no hover/focus visual -->
-        <Style x:Key="NoHoverButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <!-- Header gradient -->
+            <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#18325F" Offset="0.0" />
+                <GradientStop Color="#2C5AA0" Offset="0.5" />
+                <GradientStop Color="#18325F" Offset="1.0" />
+            </LinearGradientBrush>
+        </ResourceDictionary>
     </Window.Resources>
 
     <DockPanel LastChildFill="True">
@@ -59,10 +50,10 @@
                 </Grid.RowDefinitions>
 
                 <!-- Header -->
-                <Border Grid.Row="0" Background="{StaticResource HeaderGradient}" CornerRadius="4" 
+                <Border x:Name="HeaderBorder" Grid.Row="0" Background="{StaticResource HeaderGradient}" CornerRadius="4" 
                         Margin="0" Padding="1">
                     <Grid>
-                        <TextBlock Text="ANICO DATABASE MANAGER" 
+                        <TextBlock Text="SUITE VEIW" 
                                    Foreground="{StaticResource GoldBrush}" 
                                    VerticalAlignment="Center" 
                                    Margin="12,0" 
@@ -70,33 +61,11 @@
                                    FontSize="20" />
 
                         <!-- Custom close button in top-right -->
-                        <Button Width="25" Height="25" 
-                                HorizontalAlignment="Right" 
+                        <Button HorizontalAlignment="Right" 
                                 VerticalAlignment="Center" 
                                 Margin="0,0,8,0" 
                                 Click="CloseButton_Click"
-                                Style="{StaticResource NoHoverButton}" 
-                                IsTabStop="False">
-                            <Grid Width="25" Height="25">
-                                <Ellipse Fill="#FFFFD44D" 
-                                         Stroke="{StaticResource GoldBrush}" 
-                                         StrokeThickness="2" />
-                                <Canvas Width="12" Height="12" 
-                                        HorizontalAlignment="Center" 
-                                        VerticalAlignment="Center">
-                                    <Line X1="0" Y1="0" X2="12" Y2="12" 
-                                          Stroke="{StaticResource DarkBlue}" 
-                                          StrokeThickness="3" 
-                                          StrokeStartLineCap="Round" 
-                                          StrokeEndLineCap="Round" />
-                                    <Line X1="12" Y1="0" X2="0" Y2="12" 
-                                          Stroke="{StaticResource DarkBlue}" 
-                                          StrokeThickness="3" 
-                                          StrokeStartLineCap="Round" 
-                                          StrokeEndLineCap="Round" />
-                                </Canvas>
-                            </Grid>
-                        </Button>
+                                Style="{StaticResource GoldCircleCloseButton}" />
                     </Grid>
                 </Border>
 
@@ -104,7 +73,7 @@
                 <Border Grid.Row="1" Background="{StaticResource GoldBrush}" />
 
                 <!-- Middle content area with three buttons -->
-                <Border Grid.Row="2" Background="{StaticResource MediumBlue}" 
+                <Border x:Name="ContentBorder" Grid.Row="2" Background="{StaticResource MediumBlue}" 
                         CornerRadius="4" Padding="12,18">
                     <StackPanel Orientation="Vertical" 
                                 Margin="12,12,0,0" 

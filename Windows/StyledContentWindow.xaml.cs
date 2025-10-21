@@ -21,13 +21,19 @@ namespace CSuiteViewWPF.Windows
                 DataContext = new StyledContentWindowViewModel();
             }
 
-            // Allow dragging by mouse down on the header area
-            if (HeaderBar != null)
+            // Allow dragging by mouse down on the header border (captures all header clicks except buttons)
+            if (HeaderBorder != null)
             {
-                HeaderBar.MouseLeftButtonDown += (s, e) =>
+                HeaderBorder.MouseLeftButtonDown += (s, e) =>
                 {
-                    if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
-                        this.DragMove();
+                    // Only drag if not clicking on a button or other interactive element
+                    if (e.OriginalSource is System.Windows.Shapes.Shape || 
+                        e.OriginalSource is System.Windows.Controls.Border ||
+                        e.OriginalSource is System.Windows.Controls.TextBlock)
+                    {
+                        if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
+                            this.DragMove();
+                    }
                 };
             }
 
@@ -67,14 +73,7 @@ namespace CSuiteViewWPF.Windows
                 {
                     LoadSampleData();
                 }
-                else
-                {
-                    // Set items to FilteredDataGrid
-                    if (FilteredDataGrid != null && FilteredDataGrid.ViewModel != null)
-                    {
-                        FilteredDataGrid.ViewModel.Items = vm.Items;
-                    }
-                }
+                // Note: FilteredDataGrid removed - content is now added dynamically to MiddleBorder
             }
         }
 
@@ -228,22 +227,8 @@ namespace CSuiteViewWPF.Windows
 
         private void LoadSampleData()
         {
-            if (FilteredDataGrid != null && FilteredDataGrid.ViewModel != null && FilteredDataGrid.ViewModel.Items != null && FilteredDataGrid.ViewModel.Items.Count > 0)
-                return;
-
-            var items = new System.Collections.ObjectModel.ObservableCollection<FileSystemItem>
-            {
-                new FileSystemItem { FullPath = "C:\\Windows\\System32\\kernel32.dll", ObjectType = "File", ObjectName = "kernel32.dll", FileExtension = ".dll", Size = 123456, DateLastModified = DateTime.Now.AddDays(-10) },
-                new FileSystemItem { FullPath = "C:\\Windows\\System32", ObjectType = "Folder", ObjectName = "System32", FileExtension = "", Size = null, DateLastModified = DateTime.Now.AddDays(-5) },
-                new FileSystemItem { FullPath = "C:\\Users\\user\\Desktop\\shortcut.lnk", ObjectType = ".lnk", ObjectName = "shortcut", FileExtension = ".lnk", Size = 1024, DateLastModified = DateTime.Now.AddHours(-2) },
-                new FileSystemItem { FullPath = "C:\\Program Files\\app.exe", ObjectType = "File", ObjectName = "app.exe", FileExtension = ".exe", Size = 2048000, DateLastModified = DateTime.Now.AddDays(-1) },
-                new FileSystemItem { FullPath = "C:\\Temp", ObjectType = "Folder", ObjectName = "Temp", FileExtension = "", Size = null, DateLastModified = DateTime.Now.AddMinutes(-30) },
-            };
-
-            if (FilteredDataGrid != null && FilteredDataGrid.ViewModel != null)
-            {
-                FilteredDataGrid.ViewModel.Items = items;
-            }
+            // FilteredDataGrid removed - content is now added dynamically to MiddleBorder
+            // Sample data loading no longer needed in the template window
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

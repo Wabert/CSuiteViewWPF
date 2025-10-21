@@ -820,6 +820,34 @@ namespace CSuiteViewWPF.ViewModels
         }
 
         #endregion
+
+        #region New Simplified Filtering Methods (Not Implemented - Use PerformantFilteredDataGridViewModel)
+
+        /// <summary>
+        /// Not implemented in this ViewModel. Use PerformantFilteredDataGridViewModel for instant filtering.
+        /// </summary>
+        public void ApplyColumnFilter(string columnKey, HashSet<object> selectedValues)
+        {
+            throw new NotImplementedException("Use PerformantFilteredDataGridViewModel for instant filtering");
+        }
+
+        /// <summary>
+        /// Not implemented in this ViewModel. Use PerformantFilteredDataGridViewModel for instant filtering.
+        /// </summary>
+        public List<Controls.SimpleFilterValue> GetDistinctValuesForColumn(string columnKey)
+        {
+            throw new NotImplementedException("Use PerformantFilteredDataGridViewModel for instant filtering");
+        }
+
+        /// <summary>
+        /// Not implemented in this ViewModel. Use PerformantFilteredDataGridViewModel for instant filtering.
+        /// </summary>
+        public HashSet<object> GetActiveFilterValues(string columnKey)
+        {
+            throw new NotImplementedException("Use PerformantFilteredDataGridViewModel for instant filtering");
+        }
+
+        #endregion
     }
 
     /// <summary>

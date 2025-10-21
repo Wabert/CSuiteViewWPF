@@ -23,32 +23,32 @@
         <!-- Title for the new template window -->
         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,8">
             <TextBlock Text="Title:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
-            <TextBox x:Name="TitleBox" Width="240" Text="ANICO DATABASE MANAGER" Style="{StaticResource ThemedTextBox}" />
+            <TextBox x:Name="TitleBox" Width="240" Text="ANICO DATABASE MANAGER" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,8">
             <TextBlock Text="HeaderHeight:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
-            <TextBox x:Name="HeaderHeightBox" Width="120" Text="48" Style="{StaticResource ThemedTextBox}" />
+            <TextBox x:Name="HeaderHeightBox" Width="120" Text="48" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="0,0,0,8">
             <TextBlock Text="FooterHeight:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
-            <TextBox x:Name="FooterHeightBox" Width="120" Text="36" Style="{StaticResource ThemedTextBox}" />
+            <TextBox x:Name="FooterHeightBox" Width="120" Text="36" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,0,0,8">
             <TextBlock Text="PanelCount:" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
-            <TextBox x:Name="PanelCountBox" Width="120" Text="3" Style="{StaticResource ThemedTextBox}" />
+            <TextBox x:Name="PanelCountBox" Width="120" Text="3" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="4" Margin="0,0,0,8">
             <TextBlock Text="SpaceAbove (px):" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
-            <TextBox x:Name="SpaceAboveBox" Width="120" Text="12" Style="{StaticResource ThemedTextBox}" />
+            <TextBox x:Name="SpaceAboveBox" Width="120" Text="12" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="5" Margin="0,0,0,8">
             <TextBlock Text="SpaceBelow (px):" VerticalAlignment="Center" Width="120" Foreground="{StaticResource GoldBrush}" FontWeight="SemiBold" />
-            <TextBox x:Name="SpaceBelowBox" Width="120" Text="18" Style="{StaticResource ThemedTextBox}" />
+            <TextBox x:Name="SpaceBelowBox" Width="120" Text="18" />
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="6" Margin="0,0,0,8">
@@ -61,10 +61,10 @@
             <Button Content="Sample" Width="120" Margin="8,0,0,0" Style="{StaticResource DarkBlueGoldButton}" />
         </StackPanel>
         
-        <!-- Key/Value preview area -->
+        <!-- Key/Value preview area (TableDisplayControl removed - archived) -->
         <StackPanel Grid.Row="8" Orientation="Horizontal" Margin="0,12,0,0">
             <controls:ListViewControl x:Name="PreviewKeyValueList" />
-            <controls:TableDisplayControl x:Name="PreviewTable" Margin="12,0,0,0" />
+            <!-- TableDisplayControl removed - we now use FilteredDataGridControl -->
         </StackPanel>
     </Grid>
 

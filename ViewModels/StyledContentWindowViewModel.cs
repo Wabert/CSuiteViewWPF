@@ -10,7 +10,7 @@ namespace CSuiteViewWPF.ViewModels
     /// </summary>
     public class StyledContentWindowViewModel : INotifyPropertyChanged
     {
-        private string _headerTitle = "ANICO DATABASE MANAGER";
+        private string _headerTitle = "Header Title";
         private int _panelCount = 3;
         private int _treePanelIndex = -1;
         private int _headerHeight = 48;

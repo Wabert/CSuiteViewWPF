@@ -15,7 +15,7 @@ namespace CSuiteViewWPF.Windows
 {
     public partial class FileSystemScannerWindow : UserControl
     {
-        private FilteredDataGridViewModel _viewModel = null!;
+        private IFilterableDataGridViewModel _viewModel = null!;
         private StyledContentWindow? _parentWindow;
         private CancellationTokenSource? _cancellationTokenSource;
 
@@ -182,7 +182,7 @@ namespace CSuiteViewWPF.Windows
                 var items = await Task.Run(() => ScanDirectory(folderPath, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
                 
                 _viewModel.Items = new ObservableCollection<FileSystemItem>(items);
-                _viewModel.RebuildAllFilters();
+                // Note: RebuildAllFilters() not needed - LoadItems() (called via Items setter) automatically builds indexes
                 
                 // Count visible items after filters are applied (exclude NewItemPlaceholder)
                 int visibleCount = 0;

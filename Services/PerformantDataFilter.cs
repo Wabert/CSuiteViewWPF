@@ -42,6 +42,9 @@ namespace CSuiteViewWPF.Services
         // Performance tracking
         private readonly Stopwatch _performanceTimer;
 
+        // Lock object for thread-safe dictionary updates
+        private readonly object _indexLock = new object();
+
         #endregion
 
         #region Properties
@@ -142,9 +145,12 @@ namespace CSuiteViewWPF.Services
                 counts[normalizedValue]++;
             }
 
-            // Store the index and counts
-            _columnIndexes[propertyName] = valueIndex;
-            _valueCounts[propertyName] = counts;
+            // Store the index and counts (thread-safe)
+            lock (_indexLock)
+            {
+                _columnIndexes[propertyName] = valueIndex;
+                _valueCounts[propertyName] = counts;
+            }
 
             _performanceTimer.Stop();
             Debug.WriteLine($"[PerformantDataFilter] Built index for '{propertyName}': " +
@@ -249,6 +255,19 @@ namespace CSuiteViewWPF.Services
                 RecalculateVisibility();
                 Debug.WriteLine($"[PerformantDataFilter] Removed filter from '{propertyName}': " +
                               $"{FilteredRowCount}/{TotalRowCount} rows now visible");
+            }
+        }
+
+        /// <summary>
+        /// Gets the currently active filter values for a specific column
+        /// </summary>
+        /// <param name="propertyName">The column name</param>
+        /// <returns>HashSet of active filter values, or null if no filter is active</returns>
+        public HashSet<object>? GetActiveFilterValues(string propertyName)
+        {
+            lock (_indexLock)
+            {
+                return _activeFilters.TryGetValue(propertyName, out var values) ? values : null;
             }
         }
 
@@ -427,22 +446,32 @@ namespace CSuiteViewWPF.Services
         }
 
         /// <summary>
-        /// Gets or creates a compiled property accessor for fast reflection-less property access
+        /// Gets or creates a compiled property accessor for fast value extraction.
+        /// Thread-safe for use in parallel index building.
         /// </summary>
         private Func<T, object?> GetOrCreatePropertyAccessor(string propertyName)
         {
+            // First check without lock (fast path)
             if (_propertyAccessors.TryGetValue(propertyName, out var accessor))
                 return accessor;
 
-            // Use compiled expressions for fast property access (10-100x faster than PropertyInfo.GetValue)
-            var parameter = Expression.Parameter(typeof(T), "item");
-            var property = Expression.Property(parameter, propertyName);
-            var convert = Expression.Convert(property, typeof(object));
-            var lambda = Expression.Lambda<Func<T, object?>>(convert, parameter);
-            accessor = lambda.Compile();
+            // Need to create accessor - use lock to prevent concurrent dictionary updates
+            lock (_indexLock)
+            {
+                // Double-check pattern: another thread might have created it while we waited for lock
+                if (_propertyAccessors.TryGetValue(propertyName, out accessor))
+                    return accessor;
 
-            _propertyAccessors[propertyName] = accessor;
-            return accessor;
+                // Use compiled expressions for fast property access (10-100x faster than PropertyInfo.GetValue)
+                var parameter = Expression.Parameter(typeof(T), "item");
+                var property = Expression.Property(parameter, propertyName);
+                var convert = Expression.Convert(property, typeof(object));
+                var lambda = Expression.Lambda<Func<T, object?>>(convert, parameter);
+                accessor = lambda.Compile();
+
+                _propertyAccessors[propertyName] = accessor;
+                return accessor;
+            }
         }
 
         /// <summary>

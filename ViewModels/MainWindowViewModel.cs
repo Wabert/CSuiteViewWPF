@@ -108,22 +108,15 @@ namespace CSuiteViewWPF.ViewModels
         {
             var window = new StyledContentWindow
             {
+                Width = 800,
+                Height = 600,
                 DataContext = new StyledContentWindowViewModel
                 {
-                    HeaderTitle = "Window Creator - Testing",
+                    HeaderTitle = "Test Window",
                     PanelCount = 0,
-                    FooterVisible = false
+                    FooterVisible = true
                 }
             };
-
-            // Set the WindowCreatorForTesting as the middle content
-            var creator = new WindowCreatorForTesting();
-            var middleBorder = window.FindName("MiddleBorder") as System.Windows.Controls.Border;
-            if (middleBorder != null)
-            {
-                middleBorder.Child = creator;
-                middleBorder.Visibility = System.Windows.Visibility.Visible;
-            }
 
             window.Show();
         }

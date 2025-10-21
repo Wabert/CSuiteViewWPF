@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using CSuiteViewWPF.Models;
 using CSuiteViewWPF.ViewModels;
@@ -18,15 +19,24 @@ namespace CSuiteViewWPF.Controls
     /// </summary>
     public partial class FilteredDataGridControl : UserControl
     {
-        public FilteredDataGridViewModel ViewModel { get; private set; }
+        public IFilterableDataGridViewModel ViewModel { get; private set; }
         private DataGridCell? _rightClickedCell;
+        private FilterPopupWindow? _currentFilterWindow = null;
+        private ToggleButton? _currentToggleButton = null;
 
         public FilteredDataGridControl()
         {
             InitializeComponent();
-            ViewModel = new FilteredDataGridViewModel();
+            // Use the high-performance ViewModel with instant filtering
+            ViewModel = new PerformantFilteredDataGridViewModel();
             DataContext = ViewModel;
-            ViewModel.AttachFilterChangeHandlers();
+            
+            // OLD CODE - Commented out (FilteredDataGridViewModel moved to Archive)
+            // if (ViewModel is FilteredDataGridViewModel oldViewModel)
+            // {
+            //     oldViewModel.AttachFilterChangeHandlers();
+            // }
+            
             this.Loaded += FilteredDataGridControl_Loaded;
             this.DataContextChanged += FilteredDataGridControl_DataContextChanged;
         }
@@ -82,7 +92,7 @@ namespace CSuiteViewWPF.Controls
                 // Add filter header template if column is filterable
                 if (colDef.IsFilterable)
                 {
-                    column.HeaderTemplate = CreateFilterHeaderTemplate(colDef, viewModel);
+                    column.HeaderTemplate = CreateSimpleFilterHeaderTemplate(colDef);
                     column.CanUserSort = false; // Disable sorting on filterable columns
                 }
 
@@ -91,9 +101,52 @@ namespace CSuiteViewWPF.Controls
         }
 
         /// <summary>
-        /// Creates a DataTemplate for a column header with filter popup.
-        /// This replaces all the duplicate header template markup in the old XAML.
+        /// Creates a clickable DataTemplate for column headers (no popup - handled by ShowSimpleFilterPopup)
         /// </summary>
+        private DataTemplate CreateSimpleFilterHeaderTemplate(FilterableColumnDefinition colDef)
+        {
+            var template = new DataTemplate();
+
+            // Create the root Grid
+            var gridFactory = new FrameworkElementFactory(typeof(Grid));
+
+            // Create header TextBlock
+            var textBlock = new FrameworkElementFactory(typeof(TextBlock));
+            textBlock.SetValue(TextBlock.TextProperty, colDef.Header);
+            textBlock.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+            textBlock.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            textBlock.SetValue(TextBlock.ForegroundProperty, FindResource("DarkBlue"));
+            textBlock.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold);
+            textBlock.SetValue(TextBlock.NameProperty, $"{colDef.ColumnKey}HeaderText");
+            textBlock.SetValue(UIElement.IsHitTestVisibleProperty, false);
+            gridFactory.AppendChild(textBlock);
+
+            // Create invisible ToggleButton that covers the entire header
+            var toggleButton = new FrameworkElementFactory(typeof(ToggleButton));
+            toggleButton.SetValue(FrameworkElement.NameProperty, $"{colDef.ColumnKey}Toggle");
+            toggleButton.SetValue(Control.BackgroundProperty, Brushes.Transparent);
+            toggleButton.SetValue(Control.BorderThicknessProperty, new Thickness(0));
+            toggleButton.SetValue(ContentControl.ContentProperty, "");
+            toggleButton.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Stretch);
+            toggleButton.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Stretch);
+            toggleButton.SetValue(FrameworkElement.MarginProperty, new Thickness(8, 0, 8, 0));
+            toggleButton.SetValue(UIElement.OpacityProperty, 0.0); // Transparent
+            toggleButton.SetValue(UIElement.FocusableProperty, false);
+            toggleButton.SetValue(ToolTipService.ToolTipProperty, $"Click to filter {colDef.Header}");
+            toggleButton.SetValue(Control.CursorProperty, System.Windows.Input.Cursors.Hand);
+            toggleButton.AddHandler(ToggleButton.CheckedEvent, new RoutedEventHandler(HeaderToggle_Checked));
+            gridFactory.AppendChild(toggleButton);
+
+            template.VisualTree = gridFactory;
+            return template;
+        }
+
+        /// <summary>
+        /// OLD CODE - Creates a DataTemplate for a column header with filter popup.
+        /// COMMENTED OUT - Uses archived FilterContent/FilterContentViewModel
+        /// Now using ShowSimpleFilterPopup instead
+        /// </summary>
+        /* ARCHIVED CODE - REFERENCES MOVED CLASSES
         private DataTemplate CreateFilterHeaderTemplate(FilterableColumnDefinition colDef, IFilterableDataGridViewModel viewModel)
         {
             var template = new DataTemplate();
@@ -218,6 +271,7 @@ namespace CSuiteViewWPF.Controls
             template.VisualTree = gridFactory;
             return template;
         }
+        */ // END ARCHIVED CODE
 
         private void AttachHeaderToggleHandlers()
         {
@@ -270,8 +324,19 @@ namespace CSuiteViewWPF.Controls
                 var toggle = FindVisualChildren<ToggleButton>(header).FirstOrDefault(t => t.Name.EndsWith("Toggle"));
                 if (toggle != null)
                 {
-                    // Programmatically toggle the button
-                    toggle.IsChecked = !toggle.IsChecked;
+                    // Check if this toggle has the current open window
+                    if (_currentToggleButton == toggle && _currentFilterWindow != null)
+                    {
+                        // Clicking the same header that has window open - close it
+                        CloseFilterPopup();
+                    }
+                    else
+                    {
+                        // Open window for this toggle (or switch to this one)
+                        // Set to checked to trigger the Checked event
+                        toggle.IsChecked = true;
+                    }
+                    
                     e.Handled = true; // Prevent other handlers from firing
                 }
             }
@@ -291,6 +356,124 @@ namespace CSuiteViewWPF.Controls
                 var columnKey = checkedToggle.Name.Replace("Toggle", "");
                 
                 // Find the column definition
+                var viewModel = DataContext as IFilterableDataGridViewModel;
+                if (viewModel != null)
+                {
+                    var columnDef = viewModel.ColumnDefinitions.FirstOrDefault(c => c.ColumnKey == columnKey);
+                    if (columnDef != null)
+                    {
+                        // === NEW SIMPLIFIED FILTERING ===
+                        ShowSimpleFilterPopup(columnKey, columnDef.Header.ToString(), checkedToggle);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Shows the new simplified filter popup using a lightweight Window instead of Popup.
+        /// This solves all the mouse capture and StaysOpen issues inherent to WPF Popup.
+        /// </summary>
+        private void ShowSimpleFilterPopup(string columnKey, string columnName, ToggleButton toggleButton)
+        {
+            var viewModel = DataContext as IFilterableDataGridViewModel;
+            if (viewModel == null) return;
+
+            // If clicking the same toggle that's already open, close it
+            if (_currentFilterWindow != null && _currentToggleButton == toggleButton)
+            {
+                CloseFilterPopup();
+                return;
+            }
+
+            // Close any existing window and uncheck its toggle
+            CloseFilterPopup();
+
+            // Store reference to current toggle
+            _currentToggleButton = toggleButton;
+
+            // Create the filter content (SimpleFilterPopup UserControl)
+            var filterContent = new SimpleFilterPopup
+            {
+                ColumnName = columnName,
+                ColumnKey = columnKey
+            };
+
+            // Load distinct values
+            var distinctValues = viewModel.GetDistinctValuesForColumn(columnKey);
+            filterContent.LoadValues(distinctValues);
+
+            // Set currently selected values (if any)
+            var activeValues = viewModel.GetActiveFilterValues(columnKey);
+            filterContent.SetSelectedValues(activeValues);
+
+            // Handle filter changes (instant filtering)
+            filterContent.FilterChanged += (s, e) =>
+            {
+                viewModel.ApplyColumnFilter(e.ColumnKey, e.SelectedValues);
+                UpdateFilterIndicators();
+            };
+
+            // Handle close button
+            filterContent.CloseRequested += (s, e) =>
+            {
+                CloseFilterPopup();
+            };
+
+            // Create the filter window
+            _currentFilterWindow = new FilterPopupWindow
+            {
+                Owner = Window.GetWindow(this) // Important: keeps window on top of parent
+            };
+            
+            // Set the title and content using the existing methods
+            _currentFilterWindow.SetTitle($"Filter: {columnName}");
+            _currentFilterWindow.SetFilterContent(filterContent);
+
+            // Position the window below the toggle button
+            var point = toggleButton.PointToScreen(new Point(0, toggleButton.ActualHeight));
+            _currentFilterWindow.Left = point.X;
+            _currentFilterWindow.Top = point.Y;
+
+            // When window closes (for any reason), clean up
+            _currentFilterWindow.Closed += (s, e) =>
+            {
+                if (_currentToggleButton != null)
+                {
+                    _currentToggleButton.IsChecked = false;
+                    _currentToggleButton = null;
+                }
+                _currentFilterWindow = null;
+            };
+
+            // Show the window (non-modal)
+            _currentFilterWindow.Show();
+        }
+
+        /// <summary>
+        /// Closes the current filter window if one is open
+        /// </summary>
+        private void CloseFilterPopup()
+        {
+            if (_currentFilterWindow != null)
+            {
+                _currentFilterWindow.Close();
+                _currentFilterWindow = null;
+            }
+            
+            if (_currentToggleButton != null)
+            {
+                _currentToggleButton.IsChecked = false;
+                _currentToggleButton = null;
+            }
+        }
+
+        // === OLD COMPLEX FILTERING CODE - ARCHIVED (references FilterContent/FilterContentViewModel) ===
+        /* ARCHIVED CODE
+        private void HeaderToggle_Checked_OLD_UNUSED(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToggleButton checkedToggle)
+            {
+                var columnKey = checkedToggle.Name.Replace("Toggle", "");
                 var viewModel = DataContext as IFilterableDataGridViewModel;
                 if (viewModel != null)
                 {
@@ -443,6 +626,7 @@ namespace CSuiteViewWPF.Controls
                 }
             }
         }
+        */ // END ARCHIVED CODE
 
         /// <summary>
         /// Helper method to find parent element of a specific type
@@ -477,6 +661,21 @@ namespace CSuiteViewWPF.Controls
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if a visual element is inside another element's visual tree
+        /// </summary>
+        private static bool IsElementInsidePopup(DependencyObject element, DependencyObject container)
+        {
+            var current = element;
+            while (current != null)
+            {
+                if (current == container)
+                    return true;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return false;
         }
 
         /// <summary>
@@ -527,7 +726,9 @@ namespace CSuiteViewWPF.Controls
 
         /// <summary>
         /// Sort the DataGrid by a specific column using the high-performance sorting engine
+        /// ARCHIVED - References FilteredDataGridViewModel
         /// </summary>
+        /* ARCHIVED CODE
         private void SortColumn(string columnKey, System.ComponentModel.ListSortDirection direction)
         {
             if (DataContext is not FilteredDataGridViewModel viewModel) return;
@@ -536,13 +737,14 @@ namespace CSuiteViewWPF.Controls
             bool ascending = direction == System.ComponentModel.ListSortDirection.Ascending;
             viewModel.SortByColumn(columnKey, ascending);
         }
+        */ // END ARCHIVED CODE
 
         /// <summary>
         /// Update the visual indicator (underline) for columns with active filters
         /// </summary>
         public void UpdateFilterIndicators()
         {
-            if (DataContext is not FilteredDataGridViewModel viewModel) return;
+            if (DataContext is not IFilterableDataGridViewModel viewModel) return;
 
             // Go through all column headers and update their text decoration
             var headers = FindVisualChildren<DataGridColumnHeader>(this);
@@ -558,9 +760,9 @@ namespace CSuiteViewWPF.Controls
                         // Extract column key from the name
                         string columnKey = textBlock.Name.Replace("HeaderText", "");
                         
-                        // Check if this column has any filters applied (any item is deselected)
-                        var filters = viewModel.GetFiltersForColumn(columnKey);
-                        bool hasActiveFilter = filters.Any(f => !f.IsSelected);
+                        // Check if this column has any active filters
+                        var activeValues = viewModel.GetActiveFilterValues(columnKey);
+                        bool hasActiveFilter = activeValues.Count > 0;
                         
                         // Apply underline if filter is active
                         if (hasActiveFilter)
@@ -653,10 +855,12 @@ namespace CSuiteViewWPF.Controls
 
         /// <summary>
         /// Handler for "Copy Table" context menu item
+        /// Copies the currently visible (filtered) data to clipboard in tab-delimited format
         /// </summary>
         private void CopyTable_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is not FilteredDataGridViewModel viewModel) return;
+            if (DataContext is not IFilterableDataGridViewModel viewModel) return;
+            if (viewModel.Items == null || viewModel.Items.Count == 0) return;
 
             var sb = new StringBuilder();
 
@@ -669,19 +873,24 @@ namespace CSuiteViewWPF.Controls
             }
             sb.AppendLine(string.Join("\t", headerValues));
 
-            // Add data rows
-            foreach (var item in viewModel.ViewSource.View)
+            // Add data rows - use the DataGrid's ItemsSource which contains only visible items
+            var visibleItems = MainDataGrid.ItemsSource;
+            if (visibleItems != null)
             {
-                var rowValues = new List<string>();
-                foreach (var column in MainDataGrid.Columns)
+                foreach (var item in visibleItems)
                 {
-                    var cellValue = GetCellValue(item, column);
-                    rowValues.Add(cellValue);
+                    var rowValues = new List<string>();
+                    foreach (var column in MainDataGrid.Columns)
+                    {
+                        var cellValue = GetCellValue(item, column);
+                        rowValues.Add(cellValue);
+                    }
+                    sb.AppendLine(string.Join("\t", rowValues));
                 }
-                sb.AppendLine(string.Join("\t", rowValues));
             }
 
             Clipboard.SetText(sb.ToString());
+            System.Diagnostics.Debug.WriteLine($"Copied {sb.Length} characters to clipboard");
         }
 
         /// <summary>
