@@ -5,19 +5,17 @@ using CSuiteViewWPF.Controls;
 namespace CSuiteViewWPF.Windows
 {
     /// <summary>
-    /// Window creator for testing different window configurations
+    /// Archived: Window creator for testing. Superseded by Views.StyleWindow.
     /// </summary>
     public partial class WindowCreatorForTesting : UserControl
     {
         public WindowCreatorForTesting()
         {
             InitializeComponent();
-            // TableDisplayControl removed - now using FilteredDataGridControl
         }
 
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
-            // Create a Window with StyledWindowBase UserControl inside
             var window = new Window
             {
                 Title = TitleBox.Text ?? "Test Window",
@@ -30,7 +28,6 @@ namespace CSuiteViewWPF.Windows
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
 
-            // Add WindowChrome
             var chrome = new System.Windows.Shell.WindowChrome
             {
                 CaptionHeight = 0,
@@ -38,28 +35,12 @@ namespace CSuiteViewWPF.Windows
             };
             System.Windows.Shell.WindowChrome.SetWindowChrome(window, chrome);
 
-            // Create StyledWindowBase
             var styledControl = new StyledWindowBase();
             styledControl.HeaderTitleText.Text = TitleBox.Text ?? "Test Window";
-            
-            // Set footer visibility
-            if (FooterVisibleCheck.IsChecked == true)
-            {
-                styledControl.Footer.Visibility = Visibility.Visible;
-                styledControl.FooterSeparator.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                styledControl.Footer.Visibility = Visibility.Collapsed;
-                styledControl.FooterSeparator.Visibility = Visibility.Collapsed;
-            }
 
-            // Set the StyledWindowBase as the window's content
             window.Content = styledControl;
             
             window.Show();
         }
-
-        
     }
 }

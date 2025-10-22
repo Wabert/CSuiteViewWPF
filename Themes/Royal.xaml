@@ -1,0 +1,9 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <!-- Non-color tokens (typography/spacing) -->
+        <ResourceDictionary Source="/Themes/ThemeTokens.xaml"/>
+        <!-- Royal palette single source of truth -->
+        <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

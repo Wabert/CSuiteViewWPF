@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using CSuiteViewWPF.Services;
-using CSuiteViewWPF.Windows;
+using CSuiteViewWPF.Views;
 
 namespace CSuiteViewWPF.ViewModels
 {
@@ -15,108 +15,44 @@ namespace CSuiteViewWPF.ViewModels
     /// </summary>
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        private readonly FileService _fileService = new FileService();
-
         public MainWindowViewModel()
         {
             // Initialize commands
-            ScreenshotCommand = new RelayCommand(ExecuteScreenshot);
             DirectoryScanCommand = new RelayCommand(ExecuteDirectoryScan);
-            TestWindowsCommand = new RelayCommand(ExecuteTestWindows);
         }
 
         #region Commands
 
-        public ICommand ScreenshotCommand { get; }
         public ICommand DirectoryScanCommand { get; }
-        public ICommand TestWindowsCommand { get; }
 
         #endregion
 
         #region Command Implementations
 
-        private void ExecuteScreenshot()
-        {
-            // TODO: Implement screenshot functionality
-            System.Windows.MessageBox.Show("Screenshot functionality coming soon!", "Screenshot");
-        }
-
         private void ExecuteDirectoryScan()
         {
-            var window = new StyledContentWindow
+            // Use the new base window with chrome and theming
+            var window = new StyleWindow
             {
+                Title = "File System Scanner",
                 Width = 1000,
                 Height = 600,
-                DataContext = new StyledContentWindowViewModel
-                {
-                    HeaderTitle = "File System Scanner",
-                    PanelCount = 0,
-                    FooterVisible = true  // Show footer for status messages
-                }
+                Content = new CSuiteViewWPF.Windows.FileSystemScannerWindow()
             };
-            
-            // Replace the FilteredDataGrid with our custom content after window loads
-            window.Loaded += (s, e) =>
+
+            var owner = Application.Current?.MainWindow as Window;
+            if (owner != null)
             {
-                try
-                {
-                    // Find the MiddleBorder that contains the FilteredDataGrid
-                    var middleBorder = FindVisualChildByName<Border>(window, "MiddleBorder");
-                    if (middleBorder != null)
-                    {
-                        // Create our custom content
-                        var content = new FileSystemScannerWindow();
-                        
-                        // Replace the child of MiddleBorder
-                        middleBorder.Child = content;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Could not find MiddleBorder in StyledContentWindow. The window layout may have changed.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        window.Close();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error loading Directory Scanner:\n\n{ex.Message}\n\nStack Trace:\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    window.Close();
-                }
-            };
-            
-            window.Show();
-        }
-
-        private static T? FindVisualChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
-        {
-            if (parent == null)
-                return default(T);
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is T typedChild && typedChild.Name == name)
-                    return typedChild;
-
-                var result = FindVisualChildByName<T>(child, name);
-                if (result != null)
-                    return result;
+                window.Owner = owner;
+                // Offset from owner so we don't cover the top-left controls
+                window.WindowStartupLocation = WindowStartupLocation.Manual;
+                window.Left = owner.Left + 40;
+                window.Top = owner.Top + 60;
             }
-            return default(T);
-        }
-
-        private void ExecuteTestWindows()
-        {
-            var window = new StyledContentWindow
+            else
             {
-                Width = 800,
-                Height = 600,
-                DataContext = new StyledContentWindowViewModel
-                {
-                    HeaderTitle = "Test Window",
-                    PanelCount = 0,
-                    FooterVisible = true
-                }
-            };
+                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
 
             window.Show();
         }

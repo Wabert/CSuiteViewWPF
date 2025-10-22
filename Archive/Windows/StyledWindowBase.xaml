@@ -1,0 +1,88 @@
+<UserControl x:Class="CSuiteViewWPF.Windows.StyledWindowBase"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:CSuiteViewWPF.Windows">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
+                <ResourceDictionary Source="/Resources/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Resources/ControlTemplates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- Outer gold frame -->
+    <Border Background="{DynamicResource GoldBrush}" 
+            BorderBrush="{DynamicResource GoldBrush}"
+            BorderThickness="2"
+            CornerRadius="2"
+            Padding="2">
+        
+        <!-- Inner content with DarkBlue background -->
+        <Border Background="{DynamicResource DarkBlueBrush}"
+                CornerRadius="1">
+
+            <DockPanel>
+        <!-- Header Border with Title -->
+        <Border x:Name="HeaderBorder"
+                DockPanel.Dock="Top"
+                Background="{DynamicResource DarkBlueBrush}"
+                Height="48"
+                MouseLeftButtonDown="HeaderBorder_MouseLeftButtonDown">
+            <DockPanel>
+                <!-- Title Text -->
+                <TextBlock x:Name="HeaderTitleTextBlock"
+                          Text="Styled Window"
+                          FontSize="20"
+                          FontWeight="Bold"
+                          Foreground="{DynamicResource GoldBrush}"
+                          VerticalAlignment="Center"
+                          Margin="20,0,0,0"
+                          DockPanel.Dock="Left"/>
+                
+                <!-- Close Button -->
+                <Button x:Name="CloseButton"
+                        Style="{DynamicResource GoldCircleCloseButton}"
+                        Click="CloseButton_Click"
+                        DockPanel.Dock="Right"
+                        Margin="0,0,10,0"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Gold line separator -->
+        <Rectangle DockPanel.Dock="Top" 
+                   Height="0.5" 
+                   Fill="{DynamicResource GoldBrush}"/>
+
+        <!-- Optional Footer (at bottom) -->
+        <Border x:Name="FooterBar"
+                DockPanel.Dock="Bottom"
+                Background="{DynamicResource DarkBlueBrush}"
+                Height="36"
+                MouseLeftButtonDown="FooterBar_MouseLeftButtonDown">
+            <TextBlock Text="Footer" 
+                       Foreground="{DynamicResource GoldBrush}" 
+                       VerticalAlignment="Center" 
+                       Margin="12,0"/>
+        </Border>
+
+        <!-- Gold line separator above footer -->
+        <Rectangle x:Name="FooterLine"
+                   DockPanel.Dock="Bottom"
+                   Height="0.5" 
+                   Fill="{DynamicResource GoldBrush}"/>
+
+        <!-- Main Content Border (fills remaining space) -->
+        <Border x:Name="MiddleBorder"
+                Background="{DynamicResource DarkBlueBrush}"
+                Padding="12,18">
+            <ContentPresenter Content="{Binding Content, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+        </Border>
+    </DockPanel>
+
+        </Border>
+    </Border>
+
+</UserControl>

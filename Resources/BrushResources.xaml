@@ -21,6 +21,9 @@
     
     <!-- Convenience brushes (aliases) -->
     <SolidColorBrush x:Key="GoldBrush" Color="{StaticResource AccentColor}" />
+    <!-- Back-compat: legacy keys used in older XAML -->
+    <SolidColorBrush x:Key="DarkBlueBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="MiddleBlueBrush" Color="{StaticResource SecondaryColor}" />
     <SolidColorBrush x:Key="DarkBlue" Color="{StaticResource PrimaryColor}" />
     <SolidColorBrush x:Key="MiddleBlue" Color="{StaticResource SecondaryColor}"/>
     <SolidColorBrush x:Key="PanelLight" Color="{StaticResource PanelLightColor}"/>

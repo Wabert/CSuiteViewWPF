@@ -19,6 +19,25 @@
     <Compile Remove="Archive\**\*.cs" />
     <!-- prevent any XAML pages under Archive from being processed into generated code -->
     <Page Remove="Archive\**\*.xaml" />
+    <!-- explicitly remove legacy Window-based StyledWindowBase and test creator -->
+    <Page Remove="Windows\StyledWindowBase.xaml" />
+    <Compile Remove="Windows\StyledWindowBase.xaml.cs" />
+    <Page Remove="Windows\WindowCreatorForTesting.xaml" />
+    <Compile Remove="Windows\WindowCreatorForTesting.xaml.cs" />
+    <!-- also remove obsolete UserControl variant under Controls -->
+    <Page Remove="Controls\StyledWindowBase.xaml" />
+    <Compile Remove="Controls\StyledWindowBase.xaml.cs" />
+    <!-- remove unused Dashboard and Settings views/windows -->
+    <Page Remove="Views\DashboardView.xaml" />
+    <Compile Remove="Views\DashboardView.xaml.cs" />
+    <Page Remove="Views\DashboardWindow.xaml" />
+    <Compile Remove="Views\DashboardWindow.xaml.cs" />
+    <Page Remove="Views\SettingsView.xaml" />
+    <Compile Remove="Views\SettingsView.xaml.cs" />
+    <Page Remove="Views\SettingsWindow.xaml" />
+    <Compile Remove="Views\SettingsWindow.xaml.cs" />
+    <!-- remove unused window styles resource dictionary -->
+    <Page Remove="Resources\WindowStyles.xaml" />
   </ItemGroup>
 
 </Project>

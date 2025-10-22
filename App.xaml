@@ -12,12 +12,15 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
                 
                 <!-- Our custom resources -->
-                <ResourceDictionary Source="Resources/BrushResources.xaml"/>
-                <ResourceDictionary Source="Resources/DataGridStyles.xaml"/>
-                <ResourceDictionary Source="Resources/ButtonStyles.xaml"/>
-                <ResourceDictionary Source="Resources/TextBoxStyles.xaml"/>
-                <ResourceDictionary Source="Resources/ControlTemplates.xaml"/>
+                <!-- Load palette and tokens FIRST so StaticResource lookups in templates succeed -->
+                <ResourceDictionary Source="/Themes/Royal.xaml"/>
+
+                <!-- Then consolidated controls/templates and converters -->
+                <ResourceDictionary Source="Resources/Controls.xaml"/>
                 <ResourceDictionary Source="Resources/Converters.xaml"/>
+
+                <!-- Chrome template after resources -->
+                <ResourceDictionary Source="/Themes/WindowChrome.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Styles moved to Resources folder for better organization -->

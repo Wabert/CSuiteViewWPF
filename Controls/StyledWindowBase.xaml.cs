@@ -2,16 +2,20 @@
 using CSuiteViewWPF.ViewModels;
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Shapes;
 
-namespace CSuiteViewWPF.Windows
+namespace CSuiteViewWPF.Controls
 {
     /// <summary>
-    /// Styled content window with custom chrome and configurable layout.
-    /// MVVM Pattern: Minimal code-behind - most logic is in StyledContentWindowViewModel
+    /// UserControl providing styled window chrome (header, footer, gold frame).
+    /// Can be hosted in any Window to provide consistent styling.
+    /// Content should be added to the MiddleBorder area.
     /// </summary>
-    public partial class StyledContentWindow : Window
+    public partial class StyledWindowBase : UserControl
     {
-        public StyledContentWindow()
+        public StyledWindowBase()
         {
             InitializeComponent();
 
@@ -21,37 +25,32 @@ namespace CSuiteViewWPF.Windows
                 DataContext = new StyledContentWindowViewModel();
             }
 
-            // Allow dragging by mouse down on the header border (captures all header clicks except buttons)
-            if (HeaderBorder != null)
-            {
-                HeaderBorder.MouseLeftButtonDown += (s, e) =>
-                {
-                    // Only drag if not clicking on a button or other interactive element
-                    if (e.OriginalSource is System.Windows.Shapes.Shape || 
-                        e.OriginalSource is System.Windows.Controls.Border ||
-                        e.OriginalSource is System.Windows.Controls.TextBlock)
-                    {
-                        if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
-                            this.DragMove();
-                    }
-                };
-            }
-
-            // Allow dragging by footer bar as well
-            if (FooterBar != null)
-            {
-                FooterBar.MouseLeftButtonDown += (s, e) =>
-                {
-                    if (e.ButtonState == System.Windows.Input.MouseButtonState.Pressed)
-                        this.DragMove();
-                };
-            }
-
             // Sync ViewModel with UI after load
-            Loaded += StyledContentWindow_Loaded;
+            Loaded += StyledWindowBase_Loaded;
         }
 
-        private void StyledContentWindow_Loaded(object sender, RoutedEventArgs e)
+        // Public accessors for named elements
+        public TextBlock HeaderTitleText => HeaderTitleTextBlock;
+        public Border Footer => FooterBar;
+        public Rectangle FooterSeparator => FooterLine;
+
+        private void HeaderBorder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Window.GetWindow(this)?.DragMove();
+            }
+        }
+
+        private void FooterBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Window.GetWindow(this)?.DragMove();
+            }
+        }
+
+        private void StyledWindowBase_Loaded(object sender, RoutedEventArgs e)
         {
             var vm = DataContext as StyledContentWindowViewModel;
             if (vm != null)
@@ -233,7 +232,7 @@ namespace CSuiteViewWPF.Windows
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            Window.GetWindow(this)?.Close();
         }
     }
 }

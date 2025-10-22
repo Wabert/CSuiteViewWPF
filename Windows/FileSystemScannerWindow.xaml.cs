@@ -16,7 +16,6 @@ namespace CSuiteViewWPF.Windows
     public partial class FileSystemScannerWindow : UserControl
     {
         private IFilterableDataGridViewModel _viewModel = null!;
-        private StyledContentWindow? _parentWindow;
         private CancellationTokenSource? _cancellationTokenSource;
 
         public FileSystemScannerWindow()
@@ -42,14 +41,8 @@ namespace CSuiteViewWPF.Windows
                 FolderPathTextBox.Text = @"C:\";
             }
             
-            // Find and store reference to parent window
-            _parentWindow = Window.GetWindow(this) as StyledContentWindow;
-            if (_parentWindow != null)
-            {
-                // Make sure footer is visible and set initial status
-                _parentWindow.FooterVisible = true;
-                SetStatusText("Ready");
-            }
+            // Initialize status
+            SetStatusText("Ready");
         }
 
         private void InitializeDataGrid()
@@ -102,56 +95,13 @@ namespace CSuiteViewWPF.Windows
 
         private void SetStatusText(string text)
         {
-            if (_parentWindow != null)
+            if (StatusText != null)
             {
-                // Find the footer TextBlock and update its text
-                var footerBar = FindVisualChildByName<Border>(_parentWindow, "FooterBar");
-                if (footerBar != null)
-                {
-                    var textBlock = FindVisualChild<TextBlock>(footerBar);
-                    if (textBlock != null)
-                    {
-                        textBlock.Text = text;
-                    }
-                }
+                StatusText.Text = text;
             }
         }
 
-        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
-        {
-            if (parent == null)
-                return default(T);
-
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is T typedChild)
-                    return typedChild;
-
-                var result = FindVisualChild<T>(child);
-                if (result != null)
-                    return result;
-            }
-            return default(T);
-        }
-
-        private static T? FindVisualChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
-        {
-            if (parent == null)
-                return default(T);
-
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is T typedChild && typedChild.Name == name)
-                    return typedChild;
-
-                var result = FindVisualChildByName<T>(child, name);
-                if (result != null)
-                    return result;
-            }
-            return default(T);
-        }
+        // Visual tree helpers removed; local StatusText is used instead.
 
         private async void ScanButton_Click(object sender, RoutedEventArgs e)
         {

@@ -1,0 +1,14 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- Note: Color palette moved to Resources/BrushResources.xaml for a single-source-of-truth.
+        This file now only contains non-color tokens (typography, spacing, radii). -->
+
+    <!-- Typography tokens -->
+    <FontFamily x:Key="FontFamily.App">Segoe UI</FontFamily>
+    <sys:Double x:Key="FontSize.Base">14</sys:Double>
+
+    <!-- Spacing / Corner tokens -->
+    <Thickness x:Key="Thickness.Padding.M">16,12,16,12</Thickness>
+    <CornerRadius x:Key="CornerRadius.M">8</CornerRadius>
+</ResourceDictionary>

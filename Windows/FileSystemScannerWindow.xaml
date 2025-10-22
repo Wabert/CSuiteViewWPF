@@ -16,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <!-- Input Section -->
@@ -90,5 +91,12 @@
                 Margin="10,5,10,10">
             <controls:FilteredDataGridControl x:Name="FileSystemDataGrid"/>
         </Border>
+
+        <!-- Local status text replaces footer dependency -->
+        <TextBlock x:Name="StatusText"
+                   Grid.Row="2"
+                   Margin="12,0,12,8"
+                   Foreground="{DynamicResource GoldBrush}"
+                   Text="Ready"/>
     </Grid>
 </UserControl>
