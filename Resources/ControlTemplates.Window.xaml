@@ -1,0 +1,70 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:views="clr-namespace:CSuiteViewWPF.Windows">
+
+  <!-- Generic ThemedWindow template (structure only, brushes via tokens) -->
+  <ControlTemplate x:Key="ThemedWindow.Template" TargetType="views:ThemedWindow">
+    <!-- Outer frame -->
+    <Border Background="{DynamicResource WindowChrome.BorderBrush}"
+            BorderBrush="{DynamicResource WindowChrome.BorderBrush}"
+            BorderThickness="{DynamicResource WindowChrome.BorderThickness}"
+            SnapsToDevicePixels="True">
+      <Grid SnapsToDevicePixels="True">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="{DynamicResource WindowChrome.HeaderHeight}"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource WindowChrome.HeaderBackgroundBrush}"
+                CornerRadius="{DynamicResource WindowChrome.HeaderCornerRadius}"
+                ClipToBounds="True">
+          <DockPanel x:Name="PART_Header">
+            <StackPanel x:Name="PART_WindowButtons"
+                        Orientation="Horizontal"
+                        DockPanel.Dock="Right"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,10">
+              <Button x:Name="CloseBtn"
+                      Style="{DynamicResource GoldCircleCloseButton}"
+                      Command="{x:Static ApplicationCommands.Close}"/>
+            </StackPanel>
+
+            <TextBlock Text="{TemplateBinding Title}"
+                       Margin="20,0,0,0"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource WindowChrome.HeaderForegroundBrush}"
+                       FontSize="20"
+                       FontWeight="Bold"/>
+          </DockPanel>
+        </Border>
+
+        <!-- Hairline under header -->
+        <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource WindowChrome.HairlineBrush}"/>
+
+        <!-- Body -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource WindowChrome.BodyBackgroundBrush}"
+                CornerRadius="{DynamicResource WindowChrome.BodyCornerRadius}"
+                ClipToBounds="True"
+                Padding="{DynamicResource Thickness.Padding.M}">
+          <ContentPresenter x:Name="PART_ContentHost"/>
+        </Border>
+
+        <!-- Footer placeholder -->
+        <Border Grid.Row="3" Height="0" Background="Transparent"/>
+      </Grid>
+    </Border>
+
+    <ControlTemplate.Triggers>
+      <Trigger Property="views:ThemedWindow.ShowHeaderButtons" Value="False">
+        <Setter TargetName="PART_WindowButtons" Property="UIElement.Visibility" Value="Collapsed"/>
+      </Trigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+
+</ResourceDictionary>

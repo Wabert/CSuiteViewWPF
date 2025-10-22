@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:System="clr-namespace:System;assembly=mscorlib">
     
     <!-- Palette Colors (Royal classic) -->
     <Color x:Key="PrimaryColor">#2C5AA0</Color>
@@ -75,5 +76,28 @@
         <GradientStop Color="{StaticResource TextBoxBackgroundMidColor}" Offset="0.5" />
         <GradientStop Color="{StaticResource TextBoxBackgroundBottomColor}" Offset="1.0" />
     </LinearGradientBrush>
+
+    <!-- Window chrome tokens (theme-overridable) -->
+    <SolidColorBrush x:Key="WindowChrome.BorderBrush" Color="{StaticResource AccentColor}" />
+    <Thickness x:Key="WindowChrome.BorderThickness">5</Thickness>
+
+    <!-- Header -->
+    <LinearGradientBrush x:Key="WindowChrome.HeaderBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#27408B" Offset="0.0" />
+        <GradientStop Color="#1C2F6A" Offset="1.0" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="WindowChrome.HeaderForegroundBrush" Color="{StaticResource AccentColor}" />
+    <System:Double x:Key="WindowChrome.HeaderHeight">48</System:Double>
+    <CornerRadius x:Key="WindowChrome.HeaderCornerRadius">6,6,0,0</CornerRadius>
+    <CornerRadius x:Key="WindowChrome.BodyCornerRadius">0,0,6,6</CornerRadius>
+
+    <!-- Body & hairline -->
+    <SolidColorBrush x:Key="WindowChrome.BodyBackgroundBrush" Color="{StaticResource SecondaryColor}" />
+    <SolidColorBrush x:Key="WindowChrome.HairlineBrush" Color="{StaticResource AccentColor}" />
+
+    <!-- Close button tokens -->
+    <SolidColorBrush x:Key="WindowChrome.CloseButton.FillBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="WindowChrome.CloseButton.StrokeBrush" Color="{StaticResource PrimaryColor}" />
+    <SolidColorBrush x:Key="WindowChrome.CloseButton.CrossBrush" Color="{StaticResource PrimaryColor}" />
 
 </ResourceDictionary>

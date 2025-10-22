@@ -19,8 +19,7 @@
                 <ResourceDictionary Source="Resources/Controls.xaml"/>
                 <ResourceDictionary Source="Resources/Converters.xaml"/>
 
-                <!-- Chrome template after resources -->
-                <ResourceDictionary Source="/Themes/WindowChrome.xaml"/>
+                <!-- Window template/style now loaded via Resources/Controls.xaml -->
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Styles moved to Resources folder for better organization -->
