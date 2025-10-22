@@ -11,14 +11,14 @@ using System.Windows.Controls;
 using CSuiteViewWPF.Models;
 using CSuiteViewWPF.ViewModels;
 
-namespace CSuiteViewWPF.Windows
+namespace CSuiteViewWPF.Views
 {
-    public partial class DirectoryScanWindow : UserControl
+    public partial class DirectoryScanView : UserControl
     {
         private IFilterableDataGridViewModel _viewModel = null!;
         private CancellationTokenSource? _cancellationTokenSource;
 
-        public DirectoryScanWindow()
+        public DirectoryScanView()
         {
             InitializeComponent();
             
@@ -38,7 +38,7 @@ namespace CSuiteViewWPF.Windows
             }
             else
             {
-                FolderPathTextBox.Text = @"C:\";
+                FolderPathTextBox.Text = @"C:\\";
             }
             
             // Initialize status

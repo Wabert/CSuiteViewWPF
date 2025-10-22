@@ -3,13 +3,13 @@
                     xmlns:views="clr-namespace:CSuiteViewWPF.Views"
                     xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework">
 
-    <!-- Base Style for StyleWindow -->
-    <Style x:Key="StyleWindow.BaseStyle" TargetType="views:StyleWindow">
+    <!-- Base Style for ThemedWindow -->
+    <Style x:Key="ThemedWindow.BaseStyle" TargetType="views:ThemedWindow">
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="views:StyleWindow">
+                <ControlTemplate TargetType="views:ThemedWindow">
                     <!-- Outer gold frame -->
                     <Border Background="{DynamicResource GoldBrush}"
                             BorderBrush="{DynamicResource GoldBrush}"
@@ -69,7 +69,7 @@
                     </Border>
 
                     <ControlTemplate.Triggers>
-                        <Trigger Property="views:StyleWindow.ShowHeaderButtons" Value="False">
+                        <Trigger Property="views:ThemedWindow.ShowHeaderButtons" Value="False">
                             <Setter TargetName="PART_WindowButtons" Property="UIElement.Visibility" Value="Collapsed"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

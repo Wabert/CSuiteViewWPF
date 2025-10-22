@@ -1,4 +1,4 @@
-<views:StyleWindow x:Class="CSuiteViewWPF.Windows.MainWindow"
+<views:ThemedWindow x:Class="CSuiteViewWPF.Windows.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:CSuiteViewWPF.ViewModels"
@@ -8,7 +8,7 @@
         Width="420"
         WindowStartupLocation="CenterScreen">
 
-    <!-- StyleWindow.BaseStyle applies WindowChrome and template -->
+    <!-- ThemedWindow.BaseStyle applies WindowChrome and template -->
 
     <!-- Set DataContext to MainWindowViewModel -->
     <Window.DataContext>
@@ -29,4 +29,4 @@
         </StackPanel>
     </Grid>
 
-</views:StyleWindow>
+</views:ThemedWindow>

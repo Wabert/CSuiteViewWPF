@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using CSuiteViewWPF.Models;
 using CSuiteViewWPF.ViewModels;
+using CSuiteViewWPF.Windows;
 
 namespace CSuiteViewWPF.Controls
 {
@@ -21,7 +22,7 @@ namespace CSuiteViewWPF.Controls
     {
         public IFilterableDataGridViewModel ViewModel { get; private set; }
         private DataGridCell? _rightClickedCell;
-        private FilterPopupWindow? _currentFilterWindow = null;
+    private ColumnFilterWindow? _currentFilterWindow = null;
         private ToggleButton? _currentToggleButton = null;
 
         public FilteredDataGridControl()
@@ -391,8 +392,8 @@ namespace CSuiteViewWPF.Controls
             // Store reference to current toggle
             _currentToggleButton = toggleButton;
 
-            // Create the filter content (SimpleFilterPopup UserControl)
-            var filterContent = new SimpleFilterPopup
+            // Create the filter content (ColumnFilterPanel UserControl)
+            var filterContent = new ColumnFilterPanel
             {
                 ColumnName = columnName,
                 ColumnKey = columnKey
@@ -420,7 +421,7 @@ namespace CSuiteViewWPF.Controls
             };
 
             // Create the filter window
-            _currentFilterWindow = new FilterPopupWindow
+            _currentFilterWindow = new ColumnFilterWindow
             {
                 Owner = Window.GetWindow(this) // Important: keeps window on top of parent
             };

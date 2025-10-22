@@ -9,13 +9,13 @@ using CSuiteViewWPF.Services;
 namespace CSuiteViewWPF.Views
 {
     // Base window class that applies chrome, template, routed commands, and theme handling
-    public class StyleWindow : Window
+    public class ThemedWindow : Window
     {
-        public static readonly RoutedUICommand MinimizeCommand = new RoutedUICommand("Minimize", nameof(MinimizeCommand), typeof(StyleWindow));
+        public static readonly RoutedUICommand MinimizeCommand = new RoutedUICommand("Minimize", nameof(MinimizeCommand), typeof(ThemedWindow));
 
         // Allows windows to opt-out of header buttons when placing controls in the body instead
         public static readonly DependencyProperty ShowHeaderButtonsProperty = DependencyProperty.Register(
-            nameof(ShowHeaderButtons), typeof(bool), typeof(StyleWindow), new PropertyMetadata(true));
+            nameof(ShowHeaderButtons), typeof(bool), typeof(ThemedWindow), new PropertyMetadata(true));
 
         public bool ShowHeaderButtons
         {
@@ -23,7 +23,7 @@ namespace CSuiteViewWPF.Views
             set => SetValue(ShowHeaderButtonsProperty, value);
         }
 
-        public StyleWindow()
+    public ThemedWindow()
         {
             WindowStyle = WindowStyle.None;
             AllowsTransparency = false; // keep OS rendering for perf; we draw our own header
@@ -54,7 +54,7 @@ namespace CSuiteViewWPF.Views
         {
             try
             {
-                var style = TryFindResource("StyleWindow.BaseStyle") as Style;
+                var style = TryFindResource("ThemedWindow.BaseStyle") as Style;
                 if (style != null) Style = style;
             }
             catch { /* ignore */ }

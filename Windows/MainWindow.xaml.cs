@@ -4,10 +4,10 @@ using CSuiteViewWPF.Views;
 namespace CSuiteViewWPF.Windows
 {
     /// <summary>
-    /// Main application window inheriting from StyleWindow for consistent chrome and theming.
+    /// Main application window inheriting from ThemedWindow for consistent chrome and theming.
     /// MVVM Pattern: Minimal code-behind - all logic is in MainWindowViewModel.
     /// </summary>
-    public partial class MainWindow : StyleWindow
+    public partial class MainWindow : ThemedWindow
     {
         public MainWindow()
         {

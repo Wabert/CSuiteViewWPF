@@ -32,12 +32,12 @@ namespace CSuiteViewWPF.ViewModels
         private void ExecuteDirectoryScan()
         {
             // Use the new base window with chrome and theming
-            var window = new StyleWindow
+            var window = new ThemedWindow
             {
                 Title = "File System Scanner",
                 Width = 1000,
                 Height = 600,
-                Content = new CSuiteViewWPF.Windows.FileSystemScannerWindow()
+                Content = new CSuiteViewWPF.Views.DirectoryScanView()
             };
 
             var owner = Application.Current?.MainWindow as Window;
