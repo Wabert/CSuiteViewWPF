@@ -23,7 +23,7 @@ namespace CSuiteViewWPF.ViewModels
     /// - Works directly with strongly-typed objects (List<FileSystemItem>) instead of DataTable
     /// - Filters update in 10-50ms regardless of data size
     /// </summary>
-    public class FiteredDataGridViewModel : INotifyPropertyChanged, IFilterableDataGridViewModel
+    public class FilterDataGridViewModel : INotifyPropertyChanged, IFilterableDataGridViewModel
     {
         #region Fields
 
@@ -38,7 +38,7 @@ namespace CSuiteViewWPF.ViewModels
 
         #region Constructor
 
-        public FiteredDataGridViewModel()
+    public FilterDataGridViewModel()
         {
             // Initialize with empty dataset
             _filterEngine = new PerformantDataFilter<FileSystemItem>(Enumerable.Empty<FileSystemItem>());

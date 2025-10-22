@@ -63,7 +63,7 @@ namespace CSuiteViewWPF
         {
             // If the request comes from a TreeViewItem (or its visual child), suppress it so clicking
             // an item doesn't automatically scroll it to the top of the ScrollViewer.
-            DependencyObject source = e.OriginalSource as DependencyObject;
+                DependencyObject? source = e.OriginalSource as DependencyObject;
             while (source != null && !(source is TreeViewItem))
             {
                 source = VisualTreeHelper.GetParent(source);

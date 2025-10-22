@@ -4,6 +4,6 @@
         <!-- Non-color tokens (typography/spacing) -->
         <ResourceDictionary Source="/Themes/ThemeTokens.xaml"/>
         <!-- Royal palette single source of truth -->
-        <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
+        <ResourceDictionary Source="/Resources/Brushes.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

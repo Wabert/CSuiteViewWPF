@@ -5,9 +5,9 @@ using System.Windows.Input;
 
 namespace CSuiteViewWPF.Windows
 {
-    public partial class ColumnFilterWindow : Window
+    public partial class FilterColumnWindow : Window
     {
-        public ColumnFilterWindow()
+        public FilterColumnWindow()
         {
             InitializeComponent();
             

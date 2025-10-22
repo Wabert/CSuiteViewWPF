@@ -18,18 +18,18 @@ namespace CSuiteViewWPF.Controls
     /// Generic filterable DataGrid control that dynamically generates columns based on ViewModel configuration.
     /// This control is now fully reusable with any data type that implements IFilterableDataGridViewModel.
     /// </summary>
-    public partial class FilterableDataGrid : UserControl
+    public partial class FilterDataGrid : UserControl
     {
         public IFilterableDataGridViewModel ViewModel { get; private set; }
         private DataGridCell? _rightClickedCell;
-    private ColumnFilterWindow? _currentFilterWindow = null;
+    private FilterColumnWindow? _currentFilterWindow = null;
         private ToggleButton? _currentToggleButton = null;
 
-        public FilterableDataGrid()
+        public FilterDataGrid()
         {
             InitializeComponent();
             // Use the high-performance ViewModel with instant filtering
-            ViewModel = new FiteredDataGridViewModel();
+            ViewModel = new FilterDataGridViewModel();
             DataContext = ViewModel;
             
             // OLD CODE - Commented out (FilteredDataGridViewModel moved to Archive)
@@ -421,7 +421,7 @@ namespace CSuiteViewWPF.Controls
             };
 
             // Create the filter window
-            _currentFilterWindow = new ColumnFilterWindow
+            _currentFilterWindow = new FilterColumnWindow
             {
                 Owner = Window.GetWindow(this) // Important: keeps window on top of parent
             };

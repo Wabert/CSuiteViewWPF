@@ -11,6 +11,12 @@
 
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
+    <!-- exclude legacy resource dictionaries after renaming -->
+    <Page Remove="Resources\ButtonStyles.xaml" />
+    <Page Remove="Resources\TextBoxStyles.xaml" />
+    <Page Remove="Resources\DataGridStyles.xaml" />
+    <Page Remove="Resources\WindowStyles.xaml" />
+    <Page Remove="Resources\BrushResources.xaml" />
   </ItemGroup>
 
   <!-- Exclude archived/legacy files from the build to avoid duplicate generated types -->
@@ -41,8 +47,8 @@
     <Compile Remove="Views\SettingsView.xaml.cs" />
     <Page Remove="Views\SettingsWindow.xaml" />
     <Compile Remove="Views\SettingsWindow.xaml.cs" />
-    <!-- remove unused window styles resource dictionary -->
-    <Page Remove="Resources\WindowStyles.xaml" />
+  <!-- remove unused window styles resource dictionary (renamed) -->
+  <Page Remove="Resources\Styles.Window.xaml" />
     
     <!-- rename/move: exclude old UserControl under Windows; new one lives in Views as DirectoryScanView -->
     <Page Remove="Windows\DirectoryScanWindow.xaml" />

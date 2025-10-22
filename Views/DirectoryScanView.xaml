@@ -6,8 +6,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Resources/BrushResources.xaml"/>
-                <ResourceDictionary Source="/Resources/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Resources/Brushes.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles.Button.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -89,7 +89,7 @@
                 BorderThickness="2" 
                 CornerRadius="6"
                 Margin="10,5,10,10">
-            <controls:FilterableDataGrid x:Name="FileSystemDataGrid"/>
+            <controls:FilterDataGrid x:Name="FileSystemDataGrid"/>
         </Border>
 
         <!-- Local status text replaces footer dependency -->

@@ -24,8 +24,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Styles moved to Resources folder for better organization -->
-            <!-- Button styles: Resources/ButtonStyles.xaml -->
-            <!-- TextBox styles: Resources/TextBoxStyles.xaml -->
+            <!-- Button styles: Resources/Styles.Button.xaml -->
+            <!-- TextBox styles: Resources/Styles.TextBox.xaml -->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -2,43 +2,13 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="BrushResources.xaml"/>
+        <ResourceDictionary Source="/Resources/Brushes.xaml"/>
+        <ResourceDictionary Source="/Resources/ControlTemplates.Button.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- Consolidated button styles (Gold / Blue / Brass / Silver) -->
 
-    <!-- Shared bubbled button template - uses the Button's Background and BorderBrush setters -->
-    <ControlTemplate x:Key="BubbledButtonTemplate" TargetType="Button">
-        <Grid>
-            <Border x:Name="Outer" CornerRadius="6" BorderThickness="1" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
-                <Grid>
-                    <Border CornerRadius="6" Margin="2" IsHitTestVisible="False">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="#80FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#00FFFFFF" Offset="0.6" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                    </Border>
-                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    <Border x:Name="PressedOverlay" CornerRadius="6" Background="#40000000" Opacity="0" />
-                </Grid>
-            </Border>
-        </Grid>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="PressedOverlay" Property="Opacity" Value="0.35" />
-                <Setter TargetName="Outer" Property="RenderTransform">
-                    <Setter.Value>
-                        <TranslateTransform Y="1" />
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Opacity" Value="0.5" />
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
+    <!-- Shared button template moved to ControlTemplates.Button.xaml as BubbledButtonTemplate -->
 
 
 
