@@ -6,7 +6,7 @@ namespace CSuiteViewWPF.Models
     /// Defines metadata for a filterable column in a DataGrid.
     /// This allows the DataGrid to be configured dynamically without hard-coding column definitions.
     /// </summary>
-    public class FilterableColumnDefinition
+    public class FilteredColumnDefinition
     {
         /// <summary>
         /// Display text for the column header

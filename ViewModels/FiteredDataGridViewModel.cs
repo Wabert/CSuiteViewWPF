@@ -23,7 +23,7 @@ namespace CSuiteViewWPF.ViewModels
     /// - Works directly with strongly-typed objects (List<FileSystemItem>) instead of DataTable
     /// - Filters update in 10-50ms regardless of data size
     /// </summary>
-    public class PerformantFilteredDataGridViewModel : INotifyPropertyChanged, IFilterableDataGridViewModel
+    public class FiteredDataGridViewModel : INotifyPropertyChanged, IFilterableDataGridViewModel
     {
         #region Fields
 
@@ -38,7 +38,7 @@ namespace CSuiteViewWPF.ViewModels
 
         #region Constructor
 
-        public PerformantFilteredDataGridViewModel()
+        public FiteredDataGridViewModel()
         {
             // Initialize with empty dataset
             _filterEngine = new PerformantDataFilter<FileSystemItem>(Enumerable.Empty<FileSystemItem>());
@@ -60,9 +60,9 @@ namespace CSuiteViewWPF.ViewModels
                 ["DateLastModified"] = new ObservableCollection<FilterItemViewModel>()
             };
 
-            ColumnDefinitions = new ObservableCollection<FilterableColumnDefinition>
+            ColumnDefinitions = new ObservableCollection<FilteredColumnDefinition>
             {
-                new FilterableColumnDefinition
+                new FilteredColumnDefinition
                 {
                     Header = "Full Path",
                     BindingPath = "FullPath",
@@ -70,7 +70,7 @@ namespace CSuiteViewWPF.ViewModels
                     Width = new GridLength(1, GridUnitType.Star),
                     IsFilterable = true
                 },
-                new FilterableColumnDefinition
+                new FilteredColumnDefinition
                 {
                     Header = "Object Type",
                     BindingPath = "ObjectType",
@@ -78,7 +78,7 @@ namespace CSuiteViewWPF.ViewModels
                     Width = new GridLength(120),
                     IsFilterable = true
                 },
-                new FilterableColumnDefinition
+                new FilteredColumnDefinition
                 {
                     Header = "Object Name",
                     BindingPath = "ObjectName",
@@ -86,7 +86,7 @@ namespace CSuiteViewWPF.ViewModels
                     Width = new GridLength(180),
                     IsFilterable = true
                 },
-                new FilterableColumnDefinition
+                new FilteredColumnDefinition
                 {
                     Header = "File Extension",
                     BindingPath = "FileExtension",
@@ -94,7 +94,7 @@ namespace CSuiteViewWPF.ViewModels
                     Width = new GridLength(100),
                     IsFilterable = true
                 },
-                new FilterableColumnDefinition
+                new FilteredColumnDefinition
                 {
                     Header = "Size",
                     BindingPath = "Size",
@@ -103,7 +103,7 @@ namespace CSuiteViewWPF.ViewModels
                     StringFormat = "{0:N0}",
                     IsFilterable = true
                 },
-                new FilterableColumnDefinition
+                new FilteredColumnDefinition
                 {
                     Header = "Date Last Modified",
                     BindingPath = "DateLastModified",
@@ -185,7 +185,7 @@ namespace CSuiteViewWPF.ViewModels
 
         public bool HasData => _filterEngine.TotalRowCount > 0;
 
-        public ObservableCollection<FilterableColumnDefinition> ColumnDefinitions { get; }
+    public ObservableCollection<FilteredColumnDefinition> ColumnDefinitions { get; }
 
         /// <summary>
         /// Gets performance statistics about the filter engine

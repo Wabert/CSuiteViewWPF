@@ -27,6 +27,8 @@
   <!-- remove old FilterPopupWindow duplicate (replaced by ColumnFilterWindow) -->
   <Page Remove="Windows\FilterPopupWindow.xaml" />
   <Compile Remove="Windows\FilterPopupWindow.xaml.cs" />
+  <!-- exclude Views/ThemedWindow after moving to Windows -->
+  <Compile Remove="Views\ThemedWindow.cs" />
     <!-- also remove obsolete UserControl variant under Controls -->
     <Page Remove="Controls\StyledWindowBase.xaml" />
     <Compile Remove="Controls\StyledWindowBase.xaml.cs" />

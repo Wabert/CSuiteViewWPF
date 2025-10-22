@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using CSuiteViewWPF.Services;
 using CSuiteViewWPF.Views;
+using CSuiteViewWPF.Windows;
 
 namespace CSuiteViewWPF.ViewModels
 {

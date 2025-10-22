@@ -1,5 +1,5 @@
 using System.Windows;
-using CSuiteViewWPF.Views;
+using CSuiteViewWPF.Windows;
 
 namespace CSuiteViewWPF.Windows
 {

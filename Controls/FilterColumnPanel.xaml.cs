@@ -11,14 +11,14 @@ namespace CSuiteViewWPF.Controls
     /// Simplified filter popup with instant filtering via multi-select ListBox.
     /// No OK/Cancel buttons - filtering happens immediately on selection change.
     /// </summary>
-    public partial class ColumnFilterPanel : UserControl
+    public partial class FilterColumnPanel : UserControl
     {
         public event EventHandler? CloseRequested;
         public event EventHandler<FilterSelectionChangedEventArgs>? FilterChanged;
 
         private bool _isUpdatingSelection = false;
 
-        public ColumnFilterPanel()
+        public FilterColumnPanel()
         {
             InitializeComponent();
             DataContext = this;

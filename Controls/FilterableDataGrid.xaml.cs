@@ -29,7 +29,7 @@ namespace CSuiteViewWPF.Controls
         {
             InitializeComponent();
             // Use the high-performance ViewModel with instant filtering
-            ViewModel = new PerformantFilteredDataGridViewModel();
+            ViewModel = new FiteredDataGridViewModel();
             DataContext = ViewModel;
             
             // OLD CODE - Commented out (FilteredDataGridViewModel moved to Archive)
@@ -104,7 +104,7 @@ namespace CSuiteViewWPF.Controls
         /// <summary>
         /// Creates a clickable DataTemplate for column headers (no popup - handled by ShowSimpleFilterPopup)
         /// </summary>
-        private DataTemplate CreateSimpleFilterHeaderTemplate(FilterableColumnDefinition colDef)
+    private DataTemplate CreateSimpleFilterHeaderTemplate(FilteredColumnDefinition colDef)
         {
             var template = new DataTemplate();
 
@@ -392,8 +392,8 @@ namespace CSuiteViewWPF.Controls
             // Store reference to current toggle
             _currentToggleButton = toggleButton;
 
-            // Create the filter content (ColumnFilterPanel UserControl)
-            var filterContent = new ColumnFilterPanel
+            // Create the filter content (FilterColumnPanel UserControl)
+            var filterContent = new FilterColumnPanel
             {
                 ColumnName = columnName,
                 ColumnKey = columnKey

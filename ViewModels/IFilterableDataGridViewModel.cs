@@ -31,7 +31,7 @@ namespace CSuiteViewWPF.ViewModels
         /// <summary>
         /// Column definitions that define how to display and filter the data
         /// </summary>
-        ObservableCollection<FilterableColumnDefinition> ColumnDefinitions { get; }
+    ObservableCollection<FilteredColumnDefinition> ColumnDefinitions { get; }
 
         /// <summary>
         /// Get the collection of filter items for a specific column

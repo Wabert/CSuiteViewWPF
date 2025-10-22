@@ -6,7 +6,7 @@ using System.Windows.Media;
 using System.Windows.Shell;
 using CSuiteViewWPF.Services;
 
-namespace CSuiteViewWPF.Views
+namespace CSuiteViewWPF.Windows
 {
     // Base window class that applies chrome, template, routed commands, and theme handling
     public class ThemedWindow : Window
@@ -23,7 +23,7 @@ namespace CSuiteViewWPF.Views
             set => SetValue(ShowHeaderButtonsProperty, value);
         }
 
-    public ThemedWindow()
+        public ThemedWindow()
         {
             WindowStyle = WindowStyle.None;
             AllowsTransparency = false; // keep OS rendering for perf; we draw our own header
