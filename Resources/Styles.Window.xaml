@@ -9,4 +9,7 @@
         <Setter Property="Template" Value="{StaticResource ThemedWindow.Template}"/>
     </Style>
 
+    <!-- Implicit style so all ThemedWindow instances pick up the chrome without manual assignment -->
+    <Style TargetType="views:ThemedWindow" BasedOn="{StaticResource ThemedWindow.BaseStyle}"/>
+
 </ResourceDictionary>
