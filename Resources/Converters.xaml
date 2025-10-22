@@ -4,6 +4,6 @@
     
     <!-- Value Converters -->
     
-    <converters:BrushToSelectionBackgroundConverter x:Key="BrushToSelectionConverter" />
+    <converters:BrushToSelectionBackgroundConverter x:Key="BrushToSelectionBackgroundConverter" />
     
 </ResourceDictionary>

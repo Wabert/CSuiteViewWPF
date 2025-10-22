@@ -28,7 +28,9 @@ namespace CSuiteViewWPF.Windows
             WindowStyle = WindowStyle.None;
             AllowsTransparency = false; // keep OS rendering for perf; we draw our own header
             ResizeMode = ResizeMode.CanResizeWithGrip;
-            Background = Brushes.Transparent; // outer background; template provides actual visuals
+            // Fallback body background so we don't show a black surface if the template isn't applied yet
+            var bodyBg = TryFindResource("WindowChrome.BodyBackgroundBrush") as Brush;
+            Background = bodyBg ?? SystemColors.WindowBrush; // template will override with its own visuals
 
             // Apply WindowChrome for resizable border without default title bar
             WindowChrome.SetWindowChrome(this, new WindowChrome
@@ -39,7 +41,7 @@ namespace CSuiteViewWPF.Windows
                 UseAeroCaptionButtons = false
             });
 
-            // Apply our base style template (from themes)
+            // Apply our base style template (from resources)
             Loaded += (_, __) => ApplyTemplateStyle();
 
             // Routed command bindings
@@ -54,8 +56,13 @@ namespace CSuiteViewWPF.Windows
         {
             try
             {
-                var style = TryFindResource("ThemedWindow.BaseStyle") as Style;
-                if (style != null) Style = style;
+                // Prefer implicit style lookup by type, then fall back to keyed base style
+                var style = TryFindResource(typeof(ThemedWindow)) as Style
+                            ?? TryFindResource("ThemedWindow.BaseStyle") as Style;
+                if (style != null && !ReferenceEquals(Style, style))
+                {
+                    Style = style;
+                }
             }
             catch { /* ignore */ }
         }

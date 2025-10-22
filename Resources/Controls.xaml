@@ -3,7 +3,6 @@
   <!-- Consolidated control styles entrypoint -->
   <ResourceDictionary.MergedDictionaries>
     <!-- Load control templates before styles that depend on them -->
-  <ResourceDictionary Source="/Resources/ControlTemplates.xaml"/>
   <ResourceDictionary Source="/Resources/ControlTemplates.Button.xaml"/>
     <ResourceDictionary Source="/Resources/ControlTemplates.DataGrid.xaml"/>
     <ResourceDictionary Source="/Resources/ControlTemplates.Window.xaml"/>

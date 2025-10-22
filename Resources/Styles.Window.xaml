@@ -2,11 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:views="clr-namespace:CSuiteViewWPF.Windows">
 
+    <!-- Ensure the window template is in scope when the style resolves -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/ControlTemplates.Window.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- Base Style for ThemedWindow using tokenized template -->
     <Style x:Key="ThemedWindow.BaseStyle" TargetType="views:ThemedWindow">
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Template" Value="{StaticResource ThemedWindow.Template}"/>
+        <!-- Use DynamicResource so it can resolve across merged dictionaries at runtime -->
+        <Setter Property="Template" Value="{DynamicResource ThemedWindow.Template}"/>
     </Style>
 
     <!-- Implicit style so all ThemedWindow instances pick up the chrome without manual assignment -->

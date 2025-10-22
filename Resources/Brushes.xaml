@@ -87,7 +87,8 @@
         <GradientStop Color="#1C2F6A" Offset="1.0" />
     </LinearGradientBrush>
     <SolidColorBrush x:Key="WindowChrome.HeaderForegroundBrush" Color="{StaticResource AccentColor}" />
-    <System:Double x:Key="WindowChrome.HeaderHeight">48</System:Double>
+    <!-- GridLength required for RowDefinition.Height -->
+    <GridLength x:Key="WindowChrome.HeaderHeight">48</GridLength>
     <CornerRadius x:Key="WindowChrome.HeaderCornerRadius">6,6,0,0</CornerRadius>
     <CornerRadius x:Key="WindowChrome.BodyCornerRadius">0,0,6,6</CornerRadius>
 

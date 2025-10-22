@@ -11,12 +11,6 @@
 
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.11" />
-    <!-- exclude legacy resource dictionaries after renaming -->
-    <Page Remove="Resources\ButtonStyles.xaml" />
-    <Page Remove="Resources\TextBoxStyles.xaml" />
-    <Page Remove="Resources\DataGridStyles.xaml" />
-    <Page Remove="Resources\WindowStyles.xaml" />
-    <Page Remove="Resources\BrushResources.xaml" />
   </ItemGroup>
 
   <!-- Exclude archived/legacy files from the build to avoid duplicate generated types -->
@@ -25,6 +19,8 @@
     <Compile Remove="Archive\**\*.cs" />
     <!-- prevent any XAML pages under Archive from being processed into generated code -->
     <Page Remove="Archive\**\*.xaml" />
+    <!-- retire old ControlTemplates.xaml after inlining into ControlTemplates.Window.xaml -->
+    <Page Remove="Resources\ControlTemplates.xaml" />
     <!-- explicitly remove legacy Window-based StyledWindowBase and test creator -->
     <Page Remove="Windows\StyledWindowBase.xaml" />
     <Compile Remove="Windows\StyledWindowBase.xaml.cs" />
