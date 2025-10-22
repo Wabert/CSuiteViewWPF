@@ -47,8 +47,7 @@
     <Compile Remove="Views\SettingsView.xaml.cs" />
     <Page Remove="Views\SettingsWindow.xaml" />
     <Compile Remove="Views\SettingsWindow.xaml.cs" />
-  <!-- remove unused window styles resource dictionary (renamed) -->
-  <Page Remove="Resources\Styles.Window.xaml" />
+  <!-- removed exclusion so Styles.Window.xaml is included -->
     
     <!-- rename/move: exclude old UserControl under Windows; new one lives in Views as DirectoryScanView -->
     <Page Remove="Windows\DirectoryScanWindow.xaml" />
