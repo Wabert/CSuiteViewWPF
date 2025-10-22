@@ -89,7 +89,7 @@
                 BorderThickness="2" 
                 CornerRadius="6"
                 Margin="10,5,10,10">
-            <controls:FilteredDataGridControl x:Name="FileSystemDataGrid"/>
+            <controls:FilterableDataGrid x:Name="FileSystemDataGrid"/>
         </Border>
 
         <!-- Local status text replaces footer dependency -->
